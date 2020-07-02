@@ -48,7 +48,7 @@ namespace optProgram.UI
 
         private void infDistanceSelected(object sender, EventArgs e)
         {
-            Lens Lens1 = new Lens(1, 2);
+            Sphere Lens1 = new Sphere(1, 2);
             MessageBox.Show(Lens1.ToString());
         }
 
