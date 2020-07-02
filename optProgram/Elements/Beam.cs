@@ -8,7 +8,7 @@ namespace optProgram.elements
 {
     public class Beam
     {
-        double u, i, l;
+        public double u, l;
         public Beam( double u,double l)
         {
             this.u = u;

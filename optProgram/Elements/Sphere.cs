@@ -8,11 +8,16 @@ namespace optProgram.elements
 {
     public class Sphere
     {
-        double n, r;
-        public Sphere(double n,double r)
+        public double r,i,ip;
+        public Sphere(double r)
         {
-            this.n = n;
             this.r = r;
+        }
+        public void CalculateIncidentAngle(Beam incidentBeam,RefractiveIndex incidentIndex,RefractiveIndex exitIndex)
+        {
+            this.i = (incidentBeam.l - this.r) * incidentBeam.u / this.r;
+            this.ip = this.i * incidentIndex.value / exitIndex.value;
+
         }
         
     }

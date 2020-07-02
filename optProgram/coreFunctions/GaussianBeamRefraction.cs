@@ -5,17 +5,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using optProgram.elements;
 
 namespace optProgram.coreFunctions
 {
     public class GaussianBeamRefraction
     {
-        public Beam calcu(Sphere sphere, Beam beam)
+        public Beam GaussianCalculate(Sphere sphere, Beam incidentBeam,RefractiveIndex incidentIndex, RefractiveIndex exitIndex)
         {
-            Beam result = new Beam(0.1,1);
+            /*这里肯定错！！如果更改sphere的i和ip必须用指针！！*/
+            sphere.CalculateIncidentAngle(incidentBeam, incidentIndex, exitIndex);
+            double a, b;
+            a = sphere.i + incidentBeam.u - sphere.ip;
+            b = sphere.r + sphere.r * sphere.ip / a;
+            Beam exitBeam = new Beam(a, b);
 
-            return result;
+            return exitBeam;
         }
     }
 }
