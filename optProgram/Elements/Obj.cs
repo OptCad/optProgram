@@ -8,7 +8,7 @@ namespace optProgram.elements
 {
     class Obj
     {
-        double objDistance, apertureAngle;
+        public double objDistance, apertureAngle;
 
         public Obj(double distance,double angle)
         {

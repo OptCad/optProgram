@@ -4,6 +4,9 @@ using System;
 using System.Data;
 using System.Windows.Forms;
 using optProgram.elements;
+using System.Collections;
+using System.Collections.Generic;
+
 namespace optProgram.UI
 {
     public partial class Form1 : Form
@@ -90,14 +93,35 @@ namespace optProgram.UI
         {
             try
             {
-                double envRefractiveIndex = double.Parse(envRefractive.Text);
-                Obj obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text));
+                double test = double.Parse(envRefractive.Text);
+                test = double.Parse(objectDistance.Text);
+                test = double.Parse(apertureAngle.Text);
             }
             catch
             {
                 MessageBox.Show("非法输入！");
+                return;
             }
-           
+            Queue<Sphere> inputs = new Queue<Sphere>();
+            double envRefractiveIndex = double.Parse(envRefractive.Text);
+            Obj obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text));
+            for (int i = 0; i < dGViewExcel.Rows.Count; i++)
+            {
+                double r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
+                double n_tmp = double.Parse(dGViewExcel.Rows[i].Cells[1].Value.ToString());
+                Sphere tmp = new Sphere(r_tmp);
+                if (i == 0)
+                { 
+                    Beam incidentBeam = new Beam(obj.objDistance, obj.apertureAngle);
+                    //tmp.CalculateIncidentAngle(incidentBeam, envRefractiveIndex, n_tmp);
+                    inputs.Enqueue(tmp);
+                }
+                else
+                {
+                }
+
+            }
+
         }
     }
 }
