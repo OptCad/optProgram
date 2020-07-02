@@ -9,7 +9,7 @@ namespace optProgram.coreTools
 {
     public class ExcelHelper : IDisposable
     {
-        private string fileName = null; //文件名  
+        private string fileName = null; //文件名字  
         private IWorkbook workbook = null;
         private FileStream fs = null;
         private bool disposed;
