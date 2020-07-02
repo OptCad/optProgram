@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="coreFunctions\Class1.cs" />
+    <Compile Include="coreFunctions\GaussianBeamRefraction.cs" />
     <Compile Include="coreTools\excelHelper.cs" />
     <Compile Include="elements\Lens.cs" />
     <Compile Include="Program.cs" />
