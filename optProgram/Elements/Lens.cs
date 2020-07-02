@@ -14,6 +14,6 @@ namespace optProgram.elements
             this.a = a;
             this.b = b;
         }
-        
+        int c;
     }
 }
