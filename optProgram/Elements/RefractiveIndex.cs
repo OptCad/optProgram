@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace optProgram.elements
 {
-    class RefractiveIndexList
+    public class RefractiveIndex
     {
-        
+        public double value;
+
 
     }
 }
