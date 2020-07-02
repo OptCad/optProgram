@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace optProgram.elements
 {
-    class Lens
+    public class Sphere
     {
-        int a, b;
-        public Lens(int a,int b)
+        double n, r;
+        public Sphere(double n,double r)
         {
-            this.a = a;
-            this.b = b;
+            this.n = n;
+            this.r = r;
         }
-        int c;
+        
     }
 }
