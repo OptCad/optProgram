@@ -51,5 +51,17 @@ namespace optProgram.UI
             Lens Lens1 = new Lens(1, 2);
             MessageBox.Show(Lens1.ToString());
         }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // Form1
+            // 
+            this.ClientSize = new System.Drawing.Size(914, 623);
+            this.Name = "Form1";
+            this.ResumeLayout(false);
+
+        }
     }
 }
