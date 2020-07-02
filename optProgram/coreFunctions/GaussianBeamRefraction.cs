@@ -11,7 +11,7 @@ namespace optProgram.coreFunctions
 {
     public class GaussianBeamRefraction
     {
-        public Beam calcu(Sphere lens, Beam beam)
+        public Beam calcu(Sphere sphere, Beam beam)
         {
             Beam result = new Beam(0.1,1);
 
