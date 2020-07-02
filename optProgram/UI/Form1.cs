@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using optProgram.coreTools;
+using optProgram.elements;
+using System;
 using System.Data;
 using System.Windows.Forms;
-using optProgram.coreTools;
 using optProgram.elements;
-
 namespace optProgram.UI
 {
     public partial class Form1 : Form
@@ -14,9 +13,14 @@ namespace optProgram.UI
         {
             InitializeComponent();
             DataTable dtinit = new DataTable();
-            dtinit.Columns.Add("1");
-            dtinit.Columns.Add("2");
-            dtinit.Columns.Add("3");
+            //"物距l1", "物方孔径角u1", "物方折射率n1",
+            String[] init = new String[] {
+                "球面半径r", "折射率n'", "间距d"
+                };
+            for (int i = 0; i < init.Length; i++)
+            {
+                dtinit.Columns.Add(init[i]);
+            }
             dGViewExcel.DataSource = dtinit;
         }
         private void getInputBtn_Click(object sender, EventArgs e)
@@ -32,13 +36,13 @@ namespace optProgram.UI
                 ExcelHelper excel_helper = new ExcelHelper(FileName);
                 DataTable dt = excel_helper.ExcelToDataTable("", true);
                 dGViewExcel.DataSource = dt;
-                
+
             }
         }
 
         private void outputBtn_Click(object sender, EventArgs e)
         {
-           SaveFileDialog filedialog = new SaveFileDialog();
+            SaveFileDialog filedialog = new SaveFileDialog();
             string FileName = "";
             filedialog.Filter = "Excel 97-2003 工作簿（*.xls）|*.xls|Excel 工作簿（*.xlsx）|*.xlsx";
 
@@ -49,13 +53,51 @@ namespace optProgram.UI
                 ExcelHelper excel_helper = new ExcelHelper(FileName);
                 DataTable dt = (dGViewExcel.DataSource as DataTable);
                 excel_helper.DataTableToExcel(dt, "Sheet1", true);
+                excel_helper.Dispose();
             }
         }
 
         private void infDistanceSelected(object sender, EventArgs e)
         {
-            Sphere Lens1 = new Sphere(1, 2);
-            MessageBox.Show(Lens1.ToString());
+            if (infDistance.Checked == true)
+                objectDistance.Enabled = false;
+            else
+                objectDistance.Enabled = true;
+        }
+
+        private void demoOutput_Click(object sender, EventArgs e)
+        {
+            DataTable dt = (dGViewExcel.DataSource as DataTable);
+            if (dt.Rows.Count != 0)
+                MessageBox.Show("数据已修改，请使用输入数据导出！");
+            else
+            {
+                SaveFileDialog filedialog = new SaveFileDialog();
+                string FileName = "";
+                filedialog.Filter = "Excel 97-2003 工作簿（*.xls）|*.xls|Excel 工作簿（*.xlsx）|*.xlsx";
+
+                if (filedialog.ShowDialog() == DialogResult.OK)
+                {
+                    FileName = filedialog.FileName;
+                    ExcelHelper excel_helper = new ExcelHelper(FileName);
+                    excel_helper.DataTableToExcel(dt, "Sheet1", true);
+                    excel_helper.Dispose();
+                }
+            }
+        }
+
+        private void cal_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                double envRefractiveIndex = double.Parse(envRefractive.Text);
+                Obj obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text));
+            }
+            catch
+            {
+                MessageBox.Show("非法输入！");
+            }
+           
         }
     }
 }
