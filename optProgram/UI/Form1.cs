@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Windows.Forms;
 using optProgram.coreTools;
@@ -8,11 +9,16 @@ namespace optProgram.UI
 {
     public partial class Form1 : Form
     {
+
         public Form1()
         {
             InitializeComponent();
+            DataTable dtinit = new DataTable();
+            dtinit.Columns.Add("1");
+            dtinit.Columns.Add("2");
+            dtinit.Columns.Add("3");
+            dGViewExcel.DataSource = dtinit;
         }
-
         private void getInputBtn_Click(object sender, EventArgs e)
         {
             OpenFileDialog filedialog = new OpenFileDialog();
@@ -50,18 +56,6 @@ namespace optProgram.UI
         {
             Sphere Lens1 = new Sphere(1, 2);
             MessageBox.Show(Lens1.ToString());
-        }
-
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // Form1
-            // 
-            this.ClientSize = new System.Drawing.Size(914, 623);
-            this.Name = "Form1";
-            this.ResumeLayout(false);
-
         }
     }
 }
