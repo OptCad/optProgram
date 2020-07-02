@@ -92,6 +92,7 @@
     <Compile Include="coreFunctions\RealBeamRefraction.cs" />
     <Compile Include="coreTools\excelHelper.cs" />
     <Compile Include="elements\Beam.cs" />
+    <Compile Include="elements\RefractiveIndexList.cs" />
     <Compile Include="elements\Sphere.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
