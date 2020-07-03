@@ -88,13 +88,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="coreFunctions\Class1.cs" />
-    <Compile Include="coreFunctions\GaussianBeamRefraction.cs" />
-    <Compile Include="coreFunctions\RealBeamRefraction.cs" />
     <Compile Include="coreTools\excelHelper.cs" />
     <Compile Include="elements\Beam.cs" />
     <Compile Include="elements\Obj.cs" />
-    <Compile Include="elements\RefractiveIndex.cs" />
-    <Compile Include="elements\Sphere.cs" />
+    <Compile Include="elements\OptSystem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Form1.cs">
