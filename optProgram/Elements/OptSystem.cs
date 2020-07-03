@@ -16,8 +16,9 @@ namespace optProgram.elements
         double pupilDiameter;
         public OptSystem(Queue<Sphere> systemdata, Obj obj,double pupilD)
         {
-            int Qlength = systemdata.Count;
+
             this.pupilDiameter = pupilD;
+
             RefractiveIndexQ.Enqueue(obj.envRefractive);
             int inputCount = systemdata.Count;
             while (systemdata.Count > 0)
@@ -26,11 +27,20 @@ namespace optProgram.elements
                 Sphere tmp = systemdata.Dequeue();
                 RadiusQ.Enqueue(tmp.r);
                 RefractiveIndexQ.Enqueue(tmp.n);
+
                 if(inputCount!=1&&systemdata.Count!=0)
                     IntervalQ.Enqueue(tmp.d);
 
             }
             
+
+                if(inputCount!=1)   // 最后一面没有d
+                    IntervalQ.Enqueue(tmp.d);
+
+            }
+            if (inputCount != 1)    // 像方折射率默认 = 物方？
+                RefractiveIndexQ.Enqueue(obj.envRefractive);
+
         }
         public Beam GaussianRefraction(Beam incidentBeam1,bool isinf) //Calculate exit beam using recursion
         {
