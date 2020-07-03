@@ -32,67 +32,125 @@
             this.dGViewExcel = new System.Windows.Forms.DataGridView();
             this.outputBtn = new System.Windows.Forms.Button();
             this.infDistance = new System.Windows.Forms.CheckBox();
+            this.demoOutput = new System.Windows.Forms.Button();
+            this.cal = new System.Windows.Forms.Button();
+            this.objectDistance = new System.Windows.Forms.TextBox();
+            this.envRefractive = new System.Windows.Forms.TextBox();
+            this.apertureAngle = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dGViewExcel)).BeginInit();
             this.SuspendLayout();
             // 
             // getInputBtn
             // 
-            this.getInputBtn.Location = new System.Drawing.Point(11, 11);
-            this.getInputBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.getInputBtn.Location = new System.Drawing.Point(22, 141);
+            this.getInputBtn.Margin = new System.Windows.Forms.Padding(4);
             this.getInputBtn.Name = "getInputBtn";
-            this.getInputBtn.Size = new System.Drawing.Size(106, 38);
+            this.getInputBtn.Size = new System.Drawing.Size(212, 76);
             this.getInputBtn.TabIndex = 0;
-            this.getInputBtn.Text = "读取";
+            this.getInputBtn.Text = "输入读取";
             this.getInputBtn.UseVisualStyleBackColor = true;
             this.getInputBtn.Click += new System.EventHandler(this.getInputBtn_Click);
             // 
             // dGViewExcel
             // 
             this.dGViewExcel.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dGViewExcel.Location = new System.Drawing.Point(12, 54);
+            this.dGViewExcel.Location = new System.Drawing.Point(22, 261);
+            this.dGViewExcel.Margin = new System.Windows.Forms.Padding(6);
             this.dGViewExcel.Name = "dGViewExcel";
+            this.dGViewExcel.RowHeadersWidth = 82;
             this.dGViewExcel.RowTemplate.Height = 23;
-            this.dGViewExcel.Size = new System.Drawing.Size(431, 208);
+            this.dGViewExcel.Size = new System.Drawing.Size(895, 416);
             this.dGViewExcel.TabIndex = 1;
             // 
             // outputBtn
             // 
-            this.outputBtn.Location = new System.Drawing.Point(140, 11);
-            this.outputBtn.Margin = new System.Windows.Forms.Padding(2);
+            this.outputBtn.Location = new System.Drawing.Point(276, 26);
+            this.outputBtn.Margin = new System.Windows.Forms.Padding(4);
             this.outputBtn.Name = "outputBtn";
-            this.outputBtn.Size = new System.Drawing.Size(106, 38);
+            this.outputBtn.Size = new System.Drawing.Size(212, 76);
             this.outputBtn.TabIndex = 2;
-            this.outputBtn.Text = "输出";
+            this.outputBtn.Text = "输入数据导出";
             this.outputBtn.UseVisualStyleBackColor = true;
             this.outputBtn.Click += new System.EventHandler(this.outputBtn_Click);
             // 
             // infDistance
             // 
             this.infDistance.AutoSize = true;
-            this.infDistance.Location = new System.Drawing.Point(266, 13);
+            this.infDistance.Location = new System.Drawing.Point(542, 26);
+            this.infDistance.Margin = new System.Windows.Forms.Padding(6);
             this.infDistance.Name = "infDistance";
-            this.infDistance.Size = new System.Drawing.Size(84, 16);
+            this.infDistance.Size = new System.Drawing.Size(162, 28);
             this.infDistance.TabIndex = 4;
             this.infDistance.Text = "物距无限远";
             this.infDistance.UseVisualStyleBackColor = true;
             this.infDistance.CheckedChanged += new System.EventHandler(this.infDistanceSelected);
             // 
+            // demoOutput
+            // 
+            this.demoOutput.Location = new System.Drawing.Point(22, 26);
+            this.demoOutput.Margin = new System.Windows.Forms.Padding(4);
+            this.demoOutput.Name = "demoOutput";
+            this.demoOutput.Size = new System.Drawing.Size(212, 76);
+            this.demoOutput.TabIndex = 5;
+            this.demoOutput.Text = "模板输出";
+            this.demoOutput.UseVisualStyleBackColor = true;
+            this.demoOutput.Click += new System.EventHandler(this.demoOutput_Click);
+            // 
+            // cal
+            // 
+            this.cal.Location = new System.Drawing.Point(276, 141);
+            this.cal.Margin = new System.Windows.Forms.Padding(4);
+            this.cal.Name = "cal";
+            this.cal.Size = new System.Drawing.Size(212, 76);
+            this.cal.TabIndex = 2;
+            this.cal.Text = "计算";
+            this.cal.UseVisualStyleBackColor = true;
+            this.cal.Click += new System.EventHandler(this.cal_Click);
+            // 
+            // objectDistance
+            // 
+            this.objectDistance.Location = new System.Drawing.Point(542, 67);
+            this.objectDistance.Name = "objectDistance";
+            this.objectDistance.Size = new System.Drawing.Size(133, 35);
+            this.objectDistance.TabIndex = 6;
+            this.objectDistance.Text = "物距";
+            // 
+            // envRefractive
+            // 
+            this.envRefractive.Location = new System.Drawing.Point(542, 182);
+            this.envRefractive.Name = "envRefractive";
+            this.envRefractive.Size = new System.Drawing.Size(133, 35);
+            this.envRefractive.TabIndex = 6;
+            this.envRefractive.Text = "环境折射率";
+            // 
+            // apertureAngle
+            // 
+            this.apertureAngle.Location = new System.Drawing.Point(542, 123);
+            this.apertureAngle.Name = "apertureAngle";
+            this.apertureAngle.Size = new System.Drawing.Size(133, 35);
+            this.apertureAngle.TabIndex = 6;
+            this.apertureAngle.Text = "物方孔径角";
+            // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(466, 290);
+            this.ClientSize = new System.Drawing.Size(953, 759);
+            this.Controls.Add(this.apertureAngle);
+            this.Controls.Add(this.envRefractive);
+            this.Controls.Add(this.objectDistance);
+            this.Controls.Add(this.demoOutput);
             this.Controls.Add(this.infDistance);
+            this.Controls.Add(this.cal);
             this.Controls.Add(this.outputBtn);
             this.Controls.Add(this.dGViewExcel);
             this.Controls.Add(this.getInputBtn);
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)(this.dGViewExcel)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
-
 
         }
 
@@ -102,6 +160,11 @@
         private System.Windows.Forms.DataGridView dGViewExcel;
         private System.Windows.Forms.Button outputBtn;
         private System.Windows.Forms.CheckBox infDistance;
+        private System.Windows.Forms.Button demoOutput;
+        private System.Windows.Forms.Button cal;
+        private System.Windows.Forms.TextBox objectDistance;
+        private System.Windows.Forms.TextBox envRefractive;
+        private System.Windows.Forms.TextBox apertureAngle;
     }
 }
 

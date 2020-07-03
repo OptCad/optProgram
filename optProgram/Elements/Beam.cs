@@ -9,7 +9,7 @@ namespace optProgram.elements
     public class Beam
     {
         public double u, l;
-        public Beam( double u,double l)
+        public Beam( double l,double u)
         {
             this.u = u;
             this.l = l;
