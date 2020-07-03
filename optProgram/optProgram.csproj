@@ -87,7 +87,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="coreFunctions\Class1.cs" />
     <Compile Include="coreTools\excelHelper.cs" />
     <Compile Include="elements\Beam.cs" />
     <Compile Include="elements\Obj.cs" />
@@ -130,6 +129,8 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="coreFunctions\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -3,8 +3,6 @@ using optProgram.elements;
 using System;
 using System.Data;
 using System.Windows.Forms;
-using optProgram.elements;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace optProgram.UI
@@ -14,6 +12,7 @@ namespace optProgram.UI
 
         public Form1()
         {
+            // Initialize the dateGridView
             InitializeComponent();
             DataTable dtinit = new DataTable();
             //"物距l1", "物方孔径角u1", "物方折射率n1",
@@ -28,8 +27,10 @@ namespace optProgram.UI
         }
         private void getInputBtn_Click(object sender, EventArgs e)
         {
+            //Read the excel file and display
             OpenFileDialog filedialog = new OpenFileDialog();
             string FileName = "";
+            //Restrict file types
             filedialog.Filter = "Excel 97-2003 工作簿（*.xls）|*.xls|Excel 工作簿（*.xlsx）|*.xlsx";
 
             if (filedialog.ShowDialog() == DialogResult.OK)
@@ -45,8 +46,10 @@ namespace optProgram.UI
 
         private void outputBtn_Click(object sender, EventArgs e)
         {
+            //Save the excel file.
             SaveFileDialog filedialog = new SaveFileDialog();
             string FileName = "";
+            //Same as above
             filedialog.Filter = "Excel 97-2003 工作簿（*.xls）|*.xls|Excel 工作簿（*.xlsx）|*.xlsx";
 
             if (filedialog.ShowDialog() == DialogResult.OK)
@@ -62,6 +65,7 @@ namespace optProgram.UI
 
         private void infDistanceSelected(object sender, EventArgs e)
         {
+            //To deal with the infinite objectDistance.
             if (infDistance.Checked == true)
             {
                 objectDistance.Text = "";
@@ -76,6 +80,7 @@ namespace optProgram.UI
 
         private void demoOutput_Click(object sender, EventArgs e)
         {
+            //Template output.
             DataTable dt = (dGViewExcel.DataSource as DataTable);
             if (dt.Rows.Count != 0)
                 MessageBox.Show("数据已修改，请使用输入数据导出！");
@@ -97,10 +102,14 @@ namespace optProgram.UI
 
         private void cal_Click(object sender, EventArgs e)
         {
+            //The entrance of the calculation system.
             try
             {
+                //Read the object
                 double test = double.Parse(envRefractive.Text);
-                test = double.Parse(objectDistance.Text);
+                //To deal with the infinite objectDistance
+                if(infDistance.Checked==false)
+                    test = double.Parse(objectDistance.Text);
                 test = double.Parse(apertureAngle.Text);
             }
             catch
@@ -108,9 +117,18 @@ namespace optProgram.UI
                 MessageBox.Show("非法输入！");
                 return;
             }
+            //Construct the whole optical system.
             Queue<Sphere> inputs = new Queue<Sphere>();
             double envRefractiveIndex = double.Parse(envRefractive.Text);
-            Obj obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text), envRefractiveIndex);
+            Obj obj;
+
+
+            if (infDistance.Checked == true)
+                obj = new Obj(Math.Pow(10, 15), double.Parse(apertureAngle.Text), envRefractiveIndex);
+            else
+                obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text), envRefractiveIndex);
+
+            //Read the data from the table.
             for (int i = 0; i < dGViewExcel.Rows.Count - 1; i++)
             {
                 double r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
@@ -125,8 +143,9 @@ namespace optProgram.UI
                 Sphere tmp = new Sphere(n_tmp, r_tmp, d_tmp);
                 inputs.Enqueue(tmp);
             }
+            //Calculate.
             OptSystem optSystem = new OptSystem(inputs, obj);
-
+            //Gaussian Optics
             Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle));
             MessageBox.Show("l:" + output.l.ToString() + "\nu:" + output.u.ToString());
 
