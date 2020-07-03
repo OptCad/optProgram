@@ -32,15 +32,6 @@ namespace optProgram.elements
                     IntervalQ.Enqueue(tmp.d);
 
             }
-            
-
-                if(inputCount!=1)   // 最后一面没有d
-                    IntervalQ.Enqueue(tmp.d);
-
-            }
-            if (inputCount != 1)    // 像方折射率默认 = 物方？
-                RefractiveIndexQ.Enqueue(obj.envRefractive);
-
         }
         public Beam GaussianRefraction(Beam incidentBeam1,bool isinf) //Calculate exit beam using recursion
         {
