@@ -63,9 +63,15 @@ namespace optProgram.UI
         private void infDistanceSelected(object sender, EventArgs e)
         {
             if (infDistance.Checked == true)
+            {
+                objectDistance.Text = "";
                 objectDistance.Enabled = false;
+            }
             else
+            {
+                objectDistance.Text = "";
                 objectDistance.Enabled = true;
+            }
         }
 
         private void demoOutput_Click(object sender, EventArgs e)
@@ -104,20 +110,26 @@ namespace optProgram.UI
             }
             Queue<Sphere> inputs = new Queue<Sphere>();
             double envRefractiveIndex = double.Parse(envRefractive.Text);
-            Obj obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text),envRefractiveIndex);
-            for (int i = 0; i < dGViewExcel.Rows.Count-1; i++)
+            Obj obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text), envRefractiveIndex);
+            for (int i = 0; i < dGViewExcel.Rows.Count - 1; i++)
             {
                 double r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
-                double n_tmp = double.Parse(dGViewExcel.Rows[i].Cells[1].Value.ToString());
-                double d_tmp= double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
+                double n_tmp = envRefractiveIndex;
+                double d_tmp = 0;
+                try
+                {
+                    d_tmp = double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
+                    n_tmp = double.Parse(dGViewExcel.Rows[i].Cells[1].Value.ToString());
+                }
+                catch { }
                 Sphere tmp = new Sphere(n_tmp, r_tmp, d_tmp);
                 inputs.Enqueue(tmp);
             }
             OptSystem optSystem = new OptSystem(inputs, obj);
 
             Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle));
-            MessageBox.Show("l:"+output.l.ToString()+"\nu:"+output.u.ToString());
-            
+            MessageBox.Show("l:" + output.l.ToString() + "\nu:" + output.u.ToString());
+
         }
     }
 }

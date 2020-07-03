@@ -29,9 +29,8 @@ namespace optProgram.elements
                     IntervalQ.Enqueue(tmp.d);
 
             }
-            RefractiveIndexQ.Enqueue(obj.envRefractive);
-
-
+            if (inputCount != 1)
+                RefractiveIndexQ.Enqueue(obj.envRefractive);
         }
         public Beam GaussianRefraction(Beam incidentBeam1) //Calculate exit beam using recursion
         {
@@ -50,12 +49,12 @@ namespace optProgram.elements
             u1p = incidentAngle + incidentBeam1.u - exitAngle;
             l1p = radius + radius * exitAngle / u1p;
 
-            Beam exitBeam1 = new Beam(u1p, l1p);
-            if (IntervalQ.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
+            Beam exitBeam1 = new Beam(l1p, u1p);
+            if (RadiusQ.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
 
             u2 = u1p;
             l2 = l1p - IntervalQ.Dequeue();
-            Beam incidentBeam2 = new Beam(u2, l2);
+            Beam incidentBeam2 = new Beam(l2, u2);
 
             return GaussianRefraction(incidentBeam2);
         }

@@ -37,6 +37,9 @@
             this.objectDistance = new System.Windows.Forms.TextBox();
             this.envRefractive = new System.Windows.Forms.TextBox();
             this.apertureAngle = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dGViewExcel)).BeginInit();
             this.SuspendLayout();
             // 
@@ -109,33 +112,60 @@
             // 
             // objectDistance
             // 
-            this.objectDistance.Location = new System.Drawing.Point(542, 67);
+            this.objectDistance.Location = new System.Drawing.Point(680, 63);
             this.objectDistance.Name = "objectDistance";
             this.objectDistance.Size = new System.Drawing.Size(133, 35);
             this.objectDistance.TabIndex = 6;
-            this.objectDistance.Text = "物距";
             // 
             // envRefractive
             // 
-            this.envRefractive.Location = new System.Drawing.Point(542, 182);
+            this.envRefractive.Location = new System.Drawing.Point(680, 164);
             this.envRefractive.Name = "envRefractive";
             this.envRefractive.Size = new System.Drawing.Size(133, 35);
             this.envRefractive.TabIndex = 6;
-            this.envRefractive.Text = "环境折射率";
             // 
             // apertureAngle
             // 
-            this.apertureAngle.Location = new System.Drawing.Point(542, 123);
+            this.apertureAngle.Location = new System.Drawing.Point(680, 115);
             this.apertureAngle.Name = "apertureAngle";
             this.apertureAngle.Size = new System.Drawing.Size(133, 35);
             this.apertureAngle.TabIndex = 6;
-            this.apertureAngle.Text = "物方孔径角";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(541, 66);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(58, 24);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "物距";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(541, 118);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(130, 24);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "物方孔径角";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(541, 167);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(130, 24);
+            this.label3.TabIndex = 7;
+            this.label3.Text = "环境折射率";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(953, 759);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.apertureAngle);
             this.Controls.Add(this.envRefractive);
             this.Controls.Add(this.objectDistance);
@@ -165,6 +195,9 @@
         private System.Windows.Forms.TextBox objectDistance;
         private System.Windows.Forms.TextBox envRefractive;
         private System.Windows.Forms.TextBox apertureAngle;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
     }
 }
 
