@@ -108,9 +108,11 @@ namespace optProgram.UI
                 //Read the object
                 double test = double.Parse(envRefractive.Text);
                 //To deal with the infinite objectDistance
-                if(infDistance.Checked==false)
+                if (infDistance.Checked == false)
                     test = double.Parse(objectDistance.Text);
                 test = double.Parse(apertureAngle.Text);
+                test = double.Parse(pupilDiameter.Text);
+
             }
             catch
             {
@@ -128,25 +130,37 @@ namespace optProgram.UI
             else
                 obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text), envRefractiveIndex);
 
+
+            double pupilD = double.Parse(pupilDiameter.Text);
             //Read the data from the table.
             for (int i = 0; i < dGViewExcel.Rows.Count - 1; i++)
             {
                 double r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
                 double n_tmp = envRefractiveIndex;
                 double d_tmp = 0;
+               
                 try
                 {
                     d_tmp = double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
+                }
+                catch { }
+                try
+                {
                     n_tmp = double.Parse(dGViewExcel.Rows[i].Cells[1].Value.ToString());
+                }
+                catch { }
+                try
+                {
+                    pupilD = double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
                 }
                 catch { }
                 Sphere tmp = new Sphere(n_tmp, r_tmp, d_tmp);
                 inputs.Enqueue(tmp);
             }
             //Calculate.
-            OptSystem optSystem = new OptSystem(inputs, obj);
+            OptSystem optSystem = new OptSystem(inputs, obj,pupilD);
             //Gaussian Optics
-            Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle));
+            Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle),infDistance.Checked);
             MessageBox.Show("l:" + output.l.ToString() + "\nu:" + output.u.ToString());
 
         }

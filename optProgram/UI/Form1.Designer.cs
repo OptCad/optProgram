@@ -40,6 +40,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.pupilDiameter = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dGViewExcel)).BeginInit();
             this.SuspendLayout();
             // 
@@ -62,7 +64,7 @@
             this.dGViewExcel.Name = "dGViewExcel";
             this.dGViewExcel.RowHeadersWidth = 82;
             this.dGViewExcel.RowTemplate.Height = 23;
-            this.dGViewExcel.Size = new System.Drawing.Size(895, 416);
+            this.dGViewExcel.Size = new System.Drawing.Size(1143, 416);
             this.dGViewExcel.TabIndex = 1;
             // 
             // outputBtn
@@ -119,14 +121,14 @@
             // 
             // envRefractive
             // 
-            this.envRefractive.Location = new System.Drawing.Point(680, 164);
+            this.envRefractive.Location = new System.Drawing.Point(680, 117);
             this.envRefractive.Name = "envRefractive";
             this.envRefractive.Size = new System.Drawing.Size(133, 35);
             this.envRefractive.TabIndex = 6;
             // 
             // apertureAngle
             // 
-            this.apertureAngle.Location = new System.Drawing.Point(680, 115);
+            this.apertureAngle.Location = new System.Drawing.Point(1001, 63);
             this.apertureAngle.Name = "apertureAngle";
             this.apertureAngle.Size = new System.Drawing.Size(133, 35);
             this.apertureAngle.TabIndex = 6;
@@ -143,7 +145,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(541, 118);
+            this.label2.Location = new System.Drawing.Point(862, 66);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(130, 24);
             this.label2.TabIndex = 7;
@@ -152,21 +154,39 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(541, 167);
+            this.label3.Location = new System.Drawing.Point(541, 120);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(130, 24);
             this.label3.TabIndex = 7;
-            this.label3.Text = "环境折射率";
+            this.label3.Text = "物方折射率";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(862, 120);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(106, 24);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "入瞳直径";
+            // 
+            // pupilDiameter
+            // 
+            this.pupilDiameter.Location = new System.Drawing.Point(1001, 117);
+            this.pupilDiameter.Name = "pupilDiameter";
+            this.pupilDiameter.Size = new System.Drawing.Size(133, 35);
+            this.pupilDiameter.TabIndex = 6;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(953, 759);
+            this.ClientSize = new System.Drawing.Size(1231, 759);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.apertureAngle);
+            this.Controls.Add(this.pupilDiameter);
             this.Controls.Add(this.envRefractive);
             this.Controls.Add(this.objectDistance);
             this.Controls.Add(this.demoOutput);
@@ -198,6 +218,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox pupilDiameter;
     }
 }
 
