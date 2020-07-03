@@ -104,24 +104,20 @@ namespace optProgram.UI
             }
             Queue<Sphere> inputs = new Queue<Sphere>();
             double envRefractiveIndex = double.Parse(envRefractive.Text);
-            Obj obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text));
-            for (int i = 0; i < dGViewExcel.Rows.Count; i++)
+            Obj obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text),envRefractiveIndex);
+            for (int i = 0; i < dGViewExcel.Rows.Count-1; i++)
             {
                 double r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
                 double n_tmp = double.Parse(dGViewExcel.Rows[i].Cells[1].Value.ToString());
-                Sphere tmp = new Sphere(r_tmp);
-                if (i == 0)
-                { 
-                    Beam incidentBeam = new Beam(obj.objDistance, obj.apertureAngle);
-                    //tmp.CalculateIncidentAngle(incidentBeam, envRefractiveIndex, n_tmp);
-                    inputs.Enqueue(tmp);
-                }
-                else
-                {
-                }
-
+                double d_tmp= double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
+                Sphere tmp = new Sphere(n_tmp, r_tmp, d_tmp);
+                inputs.Enqueue(tmp);
             }
+            OptSystem optSystem = new OptSystem(inputs, obj);
 
+            Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle));
+            MessageBox.Show("l:"+output.l.ToString()+"\nu:"+output.u.ToString());
+            
         }
     }
 }
