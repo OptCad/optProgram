@@ -4,6 +4,7 @@ using System;
 using System.Data;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using NPOI.SS.Formula.Functions;
 
 namespace optProgram.UI
 {
@@ -70,11 +71,22 @@ namespace optProgram.UI
             {
                 objectDistance.Text = "";
                 objectDistance.Enabled = false;
+                apertureAngle.Text = "";
+                apertureAngle.Enabled = false;
+                objHeight.Text = "";
+                objHeight.Enabled = false;
+                fieldAngle.Enabled = true;
+                pupilDiameter.Enabled = true;
             }
             else
             {
-                objectDistance.Text = "";
+                apertureAngle.Enabled = true;
                 objectDistance.Enabled = true;
+                objHeight.Enabled = true;
+                fieldAngle.Text = "";
+                fieldAngle.Enabled = false;
+                pupilDiameter.Enabled = false;
+                pupilDiameter.Text = "";
             }
         }
 
@@ -109,9 +121,15 @@ namespace optProgram.UI
                 double test = double.Parse(envRefractive.Text);
                 //To deal with the infinite objectDistance
                 if (infDistance.Checked == false)
+                {
                     test = double.Parse(objectDistance.Text);
-                test = double.Parse(apertureAngle.Text);
-                test = double.Parse(pupilDiameter.Text);
+                    test = double.Parse(apertureAngle.Text);
+                    test = double.Parse(objHeight.Text);
+                }
+                else {
+                    test = double.Parse(pupilDiameter.Text);
+                    test = double.Parse(fieldAngle.Text);
+                }
 
             }
             catch
@@ -122,23 +140,24 @@ namespace optProgram.UI
             //Construct the whole optical system.
             Queue<Sphere> inputs = new Queue<Sphere>();
             double envRefractiveIndex = double.Parse(envRefractive.Text);
+            double pupilD = double.Parse(pupilDiameter.Text);
+            double fieldAng = double.Parse(fieldAngle.Text);
             Obj obj;
 
-
+            //TODO: 改一下
             if (infDistance.Checked == true)
-                obj = new Obj(Math.Pow(10, 15), double.Parse(apertureAngle.Text), envRefractiveIndex);
+                obj = new Obj(env_n:envRefractiveIndex,fieldAng:fieldAng,pupilD:pupilD);
             else
-                obj = new Obj(double.Parse(objectDistance.Text), double.Parse(apertureAngle.Text), envRefractiveIndex);
+                obj = new Obj(distance: double.Parse(objectDistance.Text), angle:double.Parse(apertureAngle.Text), env_n:envRefractiveIndex);
 
 
-            double pupilD = double.Parse(pupilDiameter.Text);
             //Read the data from the table.
             for (int i = 0; i < dGViewExcel.Rows.Count - 1; i++)
             {
                 double r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
                 double n_tmp = envRefractiveIndex;
                 double d_tmp = 0;
-               
+
                 try
                 {
                     d_tmp = double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
@@ -158,10 +177,10 @@ namespace optProgram.UI
                 inputs.Enqueue(tmp);
             }
             //Calculate.
-            OptSystem optSystem = new OptSystem(inputs, obj,pupilD);
+            OptSystem optSystem = new OptSystem(inputs, obj,infDistance.Checked);
             //Gaussian Optics
-            Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle),infDistance.Checked);
-            MessageBox.Show("l:" + output.l.ToString() + "\nu:" + output.u.ToString());
+            //Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle), infDistance.Checked);
+            optSystem.calAll();
 
         }
     }
