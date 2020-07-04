@@ -140,8 +140,13 @@ namespace optProgram.UI
             //Construct the whole optical system.
             Queue<Sphere> inputs = new Queue<Sphere>();
             double envRefractiveIndex = double.Parse(envRefractive.Text);
-            double pupilD = double.Parse(pupilDiameter.Text);
-            double fieldAng = double.Parse(fieldAngle.Text);
+            double pupilD = 0;
+            double fieldAng = 0;
+            if (infDistance.Checked)
+            {
+                pupilD = double.Parse(pupilDiameter.Text);
+                fieldAng = double.Parse(fieldAngle.Text);
+            }
             Obj obj;
 
             //TODO: 改一下
