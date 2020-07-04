@@ -39,8 +39,8 @@ namespace optProgram.elements
 
         public void calAll()
         {
-            double[] K1 = new double[] { 1, 0.85, 0.707, 0.5, 0.3 };
-            double[] K2 = new double[] { 1, 0.85, 0.707, 0.5, 0.3, 0, -1, -0.85, -0.707, -0.5, -0.3 };
+            double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3 };
+            double[] K2 = new double[] { 1, 0.85, 0.7, 0.5, 0.3, 0, -1, -0.85, -0.7, -0.5, -0.3 };
             Beam incidentBeamGaussian;
             Dictionary<double[], Beam> incidentBeamReal;
             double up_tmp;
@@ -50,33 +50,34 @@ namespace optProgram.elements
                 incidentBeamReal = initOffAxialReal(K1, K2);
             }
             else
-            { 
+            {
                 incidentBeamGaussian = initOnaxialGaussian();
                 incidentBeamReal = initOnAxialReal(K2);
             }
-
-
-            Beam outputGaussian = GaussianRefraction(incidentBeamGaussian);
-            //MessageBox.Show("l:" + outputGaussian.l.ToString() + "\nu:" + outputGaussian.u.ToString());
             
+            Beam outputGaussian = GaussianRefraction(incidentBeamGaussian,new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ));
+
+            //MessageBox.Show("l:" + outputGaussian.l.ToString() + "\nu:" + outputGaussian.u.ToString());
+
             foreach (KeyValuePair<double[], Beam> kvp in incidentBeamReal)
             {
-                outputReal.Add(kvp.Key, RealRefraction(kvp.Value));
+                outputReal.Add(kvp.Key, RealRefraction(kvp.Value, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ)));
             }
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
         }
 
-        private Beam GaussianRefraction(Beam incidentBeam1) //Calculate exit beam using recursion
+        private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius ,
+            Queue<double> RefractiveIndex, Queue<double> Interval ) //Calculate exit beam using recursion
         {
-            // Recurse one more time
-            if (RadiusQ.Count == 0)
+            
+            if (Radius.Count == 0)
                 return incidentBeam1;
             double u1p, l1p, u2, l2;
             double incidentAngle, exitAngle;
-            double radius = RadiusQ.Dequeue();
-            double n = RefractiveIndexQ.Dequeue();
-            double np = RefractiveIndexQ.Peek(); //Do not delete np item for later use: n2 = n1p
+            double radius = Radius.Dequeue();
+            double n = RefractiveIndex.Dequeue();
+            double np = RefractiveIndex.Peek(); //Do not delete np item for later use: n2 = n1p
             incidentAngle = (incidentBeam1.l - radius) * incidentBeam1.u / radius;
             exitAngle = n * incidentAngle / np;
             IncidentAngleQ.Enqueue(incidentAngle);
@@ -85,30 +86,31 @@ namespace optProgram.elements
             l1p = radius + radius * exitAngle / u1p;
 
             Beam exitBeam1 = new Beam(l1p, u1p);
-            //if (RadiusQ.Count == 0) return exitBeam1; the last sphere does not have any sphere behind
+            if (Radius.Count == 0) return exitBeam1; //the last sphere does not have any sphere behind
 
             u2 = u1p;
-            l2 = l1p - IntervalQ.Dequeue();
+            l2 = l1p - Interval.Dequeue();
             Beam incidentBeam2 = new Beam(l2, u2);
 
-            return GaussianRefraction(incidentBeam2);
+            return GaussianRefraction(incidentBeam2,Radius,RefractiveIndex,Interval);
         }
 
 
-        private Beam RealRefraction(Beam incidentBeam1) //Calculate exit beam using recursion
+        private Beam RealRefraction(Beam incidentBeam1, Queue<double> Radius,
+            Queue<double> RefractiveIndex, Queue<double> Interval) //Calculate exit beam using recursion
         {
-
+            
             double u1p, l1p, u2, l2;
             double incidentAngle, exitAngle;
-            double radius = RadiusQ.Dequeue();
-            double n = RefractiveIndexQ.Dequeue();
-            double np = RefractiveIndexQ.Peek(); //Do not delete np item for later use: n2 = n1p
+            double radius = Radius.Dequeue();
+            double n = RefractiveIndex.Dequeue();
+            double np = RefractiveIndex.Peek(); //Do not delete np item for later use: n2 = n1p
 
             double sinI;
             sinI = (incidentBeam1.l - radius) * Math.Sin(incidentBeam1.u) / radius;
             if (Math.Abs(sinI) > 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(sinI), "入射光线超半球！");
+                MessageBox.Show("入射光线超半球！");
             }
             incidentAngle = Math.Asin(sinI);
             /*
@@ -137,7 +139,7 @@ namespace optProgram.elements
             double sinIp = n * sinI / np;
             if (Math.Abs(sinIp) > 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(sinIp), "发生全反射！");
+                MessageBox.Show("发生全反射！");
             }
             exitAngle = Math.Asin(sinIp);
 
@@ -148,13 +150,13 @@ namespace optProgram.elements
             l1p = radius + radius * sinIp / Math.Sin(u1p);
 
             Beam exitBeam1 = new Beam(l1p, u1p);
-            if (RadiusQ.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
+            if (Radius.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
 
             u2 = u1p;
-            l2 = l1p - IntervalQ.Dequeue();
+            l2 = l1p - Interval.Dequeue();
             Beam incidentBeam2 = new Beam(l2, u2);
 
-            return RealRefraction(incidentBeam2);
+            return RealRefraction(incidentBeam2, Radius, RefractiveIndex, Interval);
         }
 
         private Beam initOnaxialGaussian()
@@ -205,10 +207,10 @@ namespace optProgram.elements
                         lp_tmp = fp - IntervalQ.Dequeue();
                     else
                         lp_tmp = fp;
-                    beam.Add(new double[] { 2,K2 }, new Beam(lp_tmp, Math.Sin(Math.Atan(K2 * pupilDiameter / 2 / fp))));
+                    beam.Add(new double[] { 2, K2 }, new Beam(lp_tmp, Math.Sin(Math.Atan(K2 * pupilDiameter / 2 / fp))));
                 }
                 else
-                    beam.Add(new double[] { 2,K2 }, new Beam(obj.objDistance, K2 * Math.Sin(obj.apertureAngle)));
+                    beam.Add(new double[] { 2, K2 }, new Beam(obj.objDistance, K2 * Math.Sin(obj.apertureAngle)));
             }
             return beam;
         }
