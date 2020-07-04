@@ -17,6 +17,7 @@ namespace optProgram.elements
         double pupilDiameter;
         Obj obj;
         bool isInfinite;
+        Dictionary<double[], Beam> outputReal = new Dictionary<double[], Beam> { };
         public OptSystem(Queue<Sphere> systemdata, Obj obj, bool isInfinite)
         {
             this.isInfinite = isInfinite;
@@ -57,7 +58,7 @@ namespace optProgram.elements
 
             Beam outputGaussian = GaussianRefraction(incidentBeamGaussian);
             //MessageBox.Show("l:" + outputGaussian.l.ToString() + "\nu:" + outputGaussian.u.ToString());
-            Dictionary<double[], Beam> outputReal=new Dictionary<double[], Beam> { };
+            
             foreach (KeyValuePair<double[], Beam> kvp in incidentBeamReal)
             {
                 outputReal.Add(kvp.Key, RealRefraction(kvp.Value));
