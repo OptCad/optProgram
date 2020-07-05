@@ -180,7 +180,7 @@ namespace optProgram.elements
                     lp_tmp = fp - Interval.Dequeue();
                 else
                     lp_tmp = fp;
-                beam = new Beam(lp_tmp, -pupilDiameter / 2 / fp);
+                beam = new Beam(lp_tmp, pupilDiameter / 2 / fp);
 
             }
             else
@@ -231,6 +231,7 @@ namespace optProgram.elements
             {
                 IntervalQ.Dequeue();
                 RadiusQ.Dequeue();
+                RefractiveIndexQ.Dequeue();
             }
             return beam;
         }
