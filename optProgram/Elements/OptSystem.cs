@@ -17,7 +17,8 @@ namespace optProgram.elements
         double pupilDiameter;
         Obj obj;
         bool isInfinite;
-        Dictionary<string, Beam> outputReal = new Dictionary<string, Beam> { };
+        Dictionary<string, Beam> outputRealOn = new Dictionary<string, Beam> { };
+        Dictionary<string, Beam> outputRealOff = new Dictionary<string, Beam> { };
         Beam outputGaussian;
         public OptSystem(Queue<Sphere> systemdata, Obj obj, bool isInfinite)
         {
@@ -42,30 +43,29 @@ namespace optProgram.elements
         {
             double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3 };
             double[] K2 = new double[] { 1, 0.85, 0.7, 0.5, 0.3, 0, -1, -0.85, -0.7, -0.5, -0.3 };
-            Beam incidentBeamGaussian;
-            Dictionary<string, Beam> incidentBeamReal;
-            if (obj.objHeight != 0 || obj.fieldAngle != 0)
-            {
-                incidentBeamGaussian = initOffaxialGaussian();
-                incidentBeamReal = initOffAxialReal(K1, K2);
-            }
-            else
-            {
-                incidentBeamGaussian = initOnaxialGaussian();
-                incidentBeamReal = initOnAxialReal(K2);
-            }
+            Beam incidentBeamGaussianOn;
+            Beam incidentBeamGaussianOff;
+            Dictionary<string, Beam> incidentBeamRealOn;
+            Dictionary<string, Beam> incidentBeamRealOff;
 
-            outputGaussian = GaussianRefraction(incidentBeamGaussian, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ));
+            incidentBeamGaussianOff = initOffaxialGaussian();
+            incidentBeamRealOff = initOffAxialReal(K1, K2);
+
+            incidentBeamGaussianOn = initOnaxialGaussian();
+            incidentBeamRealOn = initOnAxialReal(K2);
+
+
+            outputGaussian = GaussianRefraction(incidentBeamGaussianOn, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ));
 
             MessageBox.Show("l:" + outputGaussian.l.ToString() + "\nu:" + outputGaussian.u.ToString());
 
-            foreach (KeyValuePair<string, Beam> kvp in incidentBeamReal)
+            foreach (KeyValuePair<string, Beam> kvp in incidentBeamRealOn)
             {
-                outputReal.Add(kvp.Key, RealRefraction(kvp.Value, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ)));
+                outputRealOn.Add(kvp.Key, RealRefraction(kvp.Value, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ)));
             }
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
-            sphericalAber(outputReal, outputGaussian);
+            sphericalAber(outputRealOn, outputGaussian);
         }
 
         private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius,
@@ -222,7 +222,7 @@ namespace optProgram.elements
                         lp_tmp = fp - Interval.Dequeue();
                     else
                         lp_tmp = fp;
-                    beam.Add(K2.ToString(), new Beam(lp_tmp, Math.Sin(Math.Atan(K2 * pupilDiameter / 2 / fp))));
+                    beam.Add(K2.ToString(), new Beam(lp_tmp, Math.Atan(K2 * pupilDiameter / 2 / fp)));
                 }
                 else
                     beam.Add(K2.ToString(), new Beam(obj.objDistance, K2 * Math.Sin(obj.apertureAngle)));
