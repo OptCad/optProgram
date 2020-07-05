@@ -19,7 +19,9 @@ namespace optProgram.elements
         bool isInfinite;
         Dictionary<string, Beam> outputRealOn = new Dictionary<string, Beam> { };
         Dictionary<string, Beam> outputRealOff = new Dictionary<string, Beam> { };
-        Beam outputGaussian;
+        Dictionary<string, double> basicPoints = new Dictionary<string, double> { };
+        Dictionary<string, Beam> outputGaussianOff = new Dictionary<string, Beam> { };
+        Beam outputGaussianOn;
         public OptSystem(Queue<Sphere> systemdata, Obj obj, bool isInfinite)
         {
             this.isInfinite = isInfinite;
@@ -44,29 +46,33 @@ namespace optProgram.elements
             double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3 };
             double[] K2 = new double[] { 1, 0.85, 0.7, 0.5, 0.3, 0, -1, -0.85, -0.7, -0.5, -0.3 };
             Beam incidentBeamGaussianOn;
-            Beam incidentBeamGaussianOff;
+            Dictionary<string, Beam> incidentBeamGaussianOff;
             Dictionary<string, Beam> incidentBeamRealOn;
             Dictionary<string, Beam> incidentBeamRealOff;
-            basicPoints(outputGaussian);
-            incidentBeamGaussianOff = initOffaxialGaussian();
+            basicPoints=calBasicPoints(outputGaussianOn);
+            incidentBeamGaussianOff = initOffaxialGaussian(K1);
             incidentBeamRealOff = initOffAxialReal(K1, K2);
 
             incidentBeamGaussianOn = initOnaxialGaussian();
             incidentBeamRealOn = initOnAxialReal(K2);
 
 
-            outputGaussian = GaussianRefraction(incidentBeamGaussianOn, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ));
+            outputGaussianOn = GaussianRefraction(incidentBeamGaussianOn, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ));
 
-            MessageBox.Show("l:" + outputGaussian.l.ToString() + "\nu:" + outputGaussian.u.ToString());
+            MessageBox.Show("l:" + outputGaussianOn.l.ToString() + "\nu:" + outputGaussianOn.u.ToString());
 
             foreach (KeyValuePair<string, Beam> kvp in incidentBeamRealOn)
             {
                 outputRealOn.Add(kvp.Key, RealRefraction(kvp.Value, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ)));
             }
+            foreach (KeyValuePair<string, Beam> kvp in incidentBeamGaussianOff)
+            {
+                outputGaussianOff.Add(kvp.Key, GaussianRefraction(kvp.Value, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ)));
+            }
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
             //sphericalAber(outputRealOn, outputGaussian);
-            
+            idealHeight(outputGaussianOff["1"]);
         }
 
         private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius,
@@ -187,13 +193,19 @@ namespace optProgram.elements
 
             return beam;
         }
-        private Beam initOffaxialGaussian()
+        private Dictionary<string, Beam> initOffaxialGaussian(double[] K1s)
         {
-            Beam beam;
-            if (isInfinite == true)
-                beam = new Beam(0, Math.Sin(obj.fieldAngle));
-            else
-                beam = new Beam(0, Math.Sin(Math.Atan(obj.objHeight / obj.objDistance)));
+            Dictionary<string, Beam> beam= new Dictionary<string, Beam>();
+            
+                foreach (double K1 in K1s)
+            {
+                if (isInfinite == true)
+                    beam.Add(K1.ToString(), new Beam(0, Math.Sin(K1 * obj.fieldAngle)));
+                else
+                    beam.Add("2", new Beam(0, Math.Sin(Math.Atan(obj.objHeight / obj.objDistance))));
+
+            }
+            
             return beam;
         }
 
@@ -273,34 +285,47 @@ namespace optProgram.elements
 
         private void idealHeight(Beam outputGaussian)
         {
-
+            //double beta = -(outputGaussian.l - basicPoints["lp"] - basicPoints["fp"]) / basicPoints["fp"];
+            double idealH;
+            if (isInfinite)
+            {
+                idealH = Math.Tan(outputGaussian.u) *(outputGaussianOn.l - outputGaussian.l);
+            }
+            else
+            {
+                idealH = beta * obj.objHeight;
+            }
         }
 
-        private void basicPoints(Beam outputGaussian)
+        private Dictionary<string,double> calBasicPoints(Beam outputGaussian)
         {
             Beam incident_tmp;
             Queue<double> RefractiveIndex = new Queue<double>(RefractiveIndexQ);
             Queue<double> Radius = new Queue<double>(RadiusQ);
             Queue<double> Interval = new Queue<double>(IntervalQ);
+            Dictionary<string, double> basicP=new Dictionary<string, double>();
+
+            incident_tmp = new Beam(0, 0.0001);
+            Beam output_tmp = GaussianRefraction(incident_tmp, new Queue<double>(Radius), new Queue<double>(RefractiveIndex), new Queue<double>(Interval));
+            double lp = output_tmp.l;
+            basicP.Add("lp", lp);
             double n_tmp = RefractiveIndex.Dequeue();
             double np_tmp = RefractiveIndex.Peek();
             double r_tmp = Radius.Dequeue();
-            double i = Math.Asin(obj.objDistance*Math.Tan(obj.apertureAngle)/ r_tmp);
+            double fp_tmp = np_tmp / (np_tmp - n_tmp) * r_tmp;
             double lp_tmp;
-            double up = i - Math.Asin(n_tmp / np_tmp * Math.Sin(i));
             if (Interval.Count != 0)
-                lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up) - Interval.Dequeue();
+                lp_tmp = fp_tmp - Interval.Dequeue();
             else
-                lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up);
-            if (IntervalQ.Count != 0)
-                Interval.Dequeue();
-            Radius.Dequeue();
-            RefractiveIndex.Dequeue();
-            incident_tmp =new Beam(lp_tmp, up);
-
-            Beam output_tmp = GaussianRefraction(incident_tmp, new Queue<double>(Radius), new Queue<double>(RefractiveIndex), new Queue<double>(Interval));
-            double fp = obj.objDistance * Math.Tan(obj.apertureAngle)  / Math.Tan(output_tmp.u);
-            MessageBox.Show(fp.ToString());
+                lp_tmp = fp_tmp;
+            incident_tmp =new Beam(lp_tmp, 0.0001/ fp_tmp);
+            output_tmp = GaussianRefraction(incident_tmp, new Queue<double>(Radius), new Queue<double>(RefractiveIndex), new Queue<double>(Interval));
+            double fp = 0.0001 / Math.Tan(output_tmp.u);
+            basicP.Add("fp", fp);
+            double lH= output_tmp.l - fp;
+            basicP.Add("lH", lH);
+            MessageBox.Show(lp.ToString());
+            return basicP;
         }
     }
 }
