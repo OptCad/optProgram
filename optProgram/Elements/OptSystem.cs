@@ -53,7 +53,7 @@ namespace optProgram.elements
 
         public void calAll()
         {
-            double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3 };
+            double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3};
             double[] K2 = new double[] { 1, 0.85, 0.7, 0.5, 0.3, 0, -1, -0.85, -0.7, -0.5, -0.3 };
             Beam incidentBeamGaussianOn;
             Dictionary<string, Beam> incidentBeamGaussianOff;
@@ -76,20 +76,24 @@ namespace optProgram.elements
             outputGaussianOn = GaussianRefraction(incidentBeamGaussianOn, new Queue<double>(RadiusOn), new Queue<double>(RefractiveIndexOn), new Queue<double>(IntervalOn));
 
             MessageBox.Show("l:" + outputGaussianOn.l.ToString() + "\nu:" + outputGaussianOn.u.ToString());
-
-            foreach (KeyValuePair<string, Beam> kvp in incidentBeamRealOn)
-            {
-                outputRealOn.Add(kvp.Key, RealRefraction(kvp.Value, new Queue<double>(RadiusOn), new Queue<double>(RefractiveIndexOn), new Queue<double>(IntervalOn)));
-            }
             foreach (KeyValuePair<string, Beam> kvp in incidentBeamGaussianOff)
             {
                 outputGaussianOff.Add(kvp.Key, GaussianRefraction(kvp.Value, new Queue<double>(RadiusOff), new Queue<double>(RefractiveIndexOff), new Queue<double>(IntervalOff)));
             }
+            foreach (KeyValuePair<string, Beam> kvp in incidentBeamRealOn)
+            {
+                outputRealOn.Add(kvp.Key, RealRefraction(kvp.Value, new Queue<double>(RadiusOn), new Queue<double>(RefractiveIndexOn), new Queue<double>(IntervalOn)));
+            }
+            foreach (KeyValuePair<string, Beam> kvp in incidentBeamRealOff)
+            {
+                outputRealOff.Add(kvp.Key, RealRefraction(kvp.Value, new Queue<double>(RadiusOff), new Queue<double>(RefractiveIndexOff), new Queue<double>(IntervalOff)));
+            }
+            
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
             //sphericalAber(outputRealOn, outputGaussian);
             idealHeight=idealH(outputGaussianOff);
-
+            realH(outputRealOff);
         }
 
         private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius,
@@ -196,7 +200,7 @@ namespace optProgram.elements
                 if (isInfinite == true)
                     beam.Add(K1.ToString(), new Beam(0, Math.Sin(K1 * obj.fieldAngle)));
                 else
-                    beam.Add("2", new Beam(0, Math.Sin(Math.Atan(obj.objHeight / obj.objDistance))));
+                    beam.Add(K1.ToString(), new Beam(0, Math.Sin(Math.Atan(K1*obj.objHeight / obj.objDistance))));
 
             }
 
@@ -280,7 +284,7 @@ namespace optProgram.elements
         private Dictionary<string, double> idealH(Dictionary<string, Beam> outputGaussian)
         {
             Dictionary<string, double> tmp = new Dictionary<string, double>();
-            double beta = -(outputGaussianOn.l - basicPoints["lp"] - basicPoints["fp"]) / basicPoints["fp"];
+            double beta = -(outputGaussianOn.l - basicPoints["lH"] - basicPoints["fp"]) / basicPoints["fp"];
             double idealH;
             foreach (KeyValuePair<string, Beam> kvp in outputGaussian)
 
@@ -297,9 +301,32 @@ namespace optProgram.elements
                     tmp.Add(kvp.Key, idealH);
                 }
             }
-            
-
+       
             return tmp;
+        }
+        private void realH(Dictionary<string, Beam> outputGaussian)
+        {
+            Dictionary<string, double> tmp = new Dictionary<string, double>();
+            double beta =0;
+            double idealH;
+            foreach (KeyValuePair<string, Beam> kvp in outputGaussian)
+
+            {
+                if (isInfinite)
+
+                {
+                    idealH = Math.Tan(outputGaussian[kvp.Key].u) * (outputGaussianOn.l - outputGaussian[kvp.Key].l);
+                    tmp.Add(kvp.Key, idealH);
+                }
+                else
+                {
+                    beta = obj.apertureAngle/outputGaussian[kvp.Key].u;
+                    idealH = beta * obj.objHeight;
+                    tmp.Add(kvp.Key, idealH);
+                }
+            }
+
+            /*return tmp;*/
         }
 
         private Dictionary<string, double> calBasicPoints(Beam outputGaussian)

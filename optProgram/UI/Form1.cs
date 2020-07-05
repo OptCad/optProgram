@@ -151,11 +151,13 @@ namespace optProgram.UI
 
             //TODO: 改一下
             if (infDistance.Checked == true)
-                obj = new Obj(env_n:envRefractiveIndex,fieldAng:fieldAng,pupilD:pupilD);
+                obj = new Obj(env_n: envRefractiveIndex, fieldAng: fieldAng, pupilD: pupilD);
             else
-                obj = new Obj(distance: double.Parse(objectDistance.Text), angle:double.Parse(apertureAngle.Text), env_n:envRefractiveIndex);
+            {
+                pupilD = 2*Math.Tan(double.Parse(apertureAngle.Text))* double.Parse(objectDistance.Text);
+                obj = new Obj(distance: double.Parse(objectDistance.Text), angle: double.Parse(apertureAngle.Text), env_n: envRefractiveIndex, objHeight: double.Parse(objHeight.Text), pupilD:pupilD);
 
-
+            }
             //Read the data from the table.
             for (int i = 0; i < dGViewExcel.Rows.Count - 1; i++)
             {
