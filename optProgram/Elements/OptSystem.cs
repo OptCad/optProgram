@@ -47,7 +47,7 @@ namespace optProgram.elements
             Beam incidentBeamGaussianOff;
             Dictionary<string, Beam> incidentBeamRealOn;
             Dictionary<string, Beam> incidentBeamRealOff;
-
+            basicPoints(outputGaussian);
             incidentBeamGaussianOff = initOffaxialGaussian();
             incidentBeamRealOff = initOffAxialReal(K1, K2);
 
@@ -65,7 +65,8 @@ namespace optProgram.elements
             }
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
-            sphericalAber(outputRealOn, outputGaussian);
+            //sphericalAber(outputRealOn, outputGaussian);
+            
         }
 
         private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius,
@@ -168,9 +169,7 @@ namespace optProgram.elements
             Queue<double> Interval = new Queue<double>(IntervalQ);
             if (isInfinite == true)
             {
-                RefractiveIndex = new Queue<double>(RefractiveIndexQ);
-                Radius = new Queue<double>(RadiusQ);
-                Interval = new Queue<double>(IntervalQ);
+                
                 double n_tmp = RefractiveIndex.Dequeue();
                 double np_tmp = RefractiveIndex.Peek();
                 double r_tmp = Radius.Dequeue();
@@ -221,15 +220,18 @@ namespace optProgram.elements
                     double up = i-Math.Asin(n_tmp/np_tmp*Math.Sin(i));
                     if(Interval.Count!=0)
                         lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up)-Interval.Dequeue();
+                    else 
                     lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up);
+                    
                     beam.Add(K2.ToString(), new Beam(lp_tmp, up));
                 }
                 else
-                    beam.Add(K2.ToString(), new Beam(obj.objDistance, K2 * Math.Asin(Math.Sin(obj.apertureAngle))));
+                    beam.Add(K2.ToString(), new Beam(obj.objDistance, Math.Asin(K2 * Math.Sin(obj.apertureAngle))));
             }
             if (flag == 1)
             {
-                IntervalQ.Dequeue();
+                if(IntervalQ.Count!=0)
+                    IntervalQ.Dequeue();
                 RadiusQ.Dequeue();
                 RefractiveIndexQ.Dequeue();
             }
@@ -267,6 +269,38 @@ namespace optProgram.elements
             SphericalAber.Add("0.7", outputR2.l - outputGaussian.l);
             MessageBox.Show("全孔径球差：" + SphericalAber["1"].ToString() + "\n 0.7孔径球差:" + SphericalAber["0.7"]);
 
+        }
+
+        private void idealHeight(Beam outputGaussian)
+        {
+
+        }
+
+        private void basicPoints(Beam outputGaussian)
+        {
+            Beam incident_tmp;
+            Queue<double> RefractiveIndex = new Queue<double>(RefractiveIndexQ);
+            Queue<double> Radius = new Queue<double>(RadiusQ);
+            Queue<double> Interval = new Queue<double>(IntervalQ);
+            double n_tmp = RefractiveIndex.Dequeue();
+            double np_tmp = RefractiveIndex.Peek();
+            double r_tmp = Radius.Dequeue();
+            double i = Math.Asin(obj.objDistance*Math.Tan(obj.apertureAngle)/ r_tmp);
+            double lp_tmp;
+            double up = i - Math.Asin(n_tmp / np_tmp * Math.Sin(i));
+            if (Interval.Count != 0)
+                lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up) - Interval.Dequeue();
+            else
+                lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up);
+            if (IntervalQ.Count != 0)
+                Interval.Dequeue();
+            Radius.Dequeue();
+            RefractiveIndex.Dequeue();
+            incident_tmp =new Beam(lp_tmp, up);
+
+            Beam output_tmp = GaussianRefraction(incident_tmp, new Queue<double>(Radius), new Queue<double>(RefractiveIndex), new Queue<double>(Interval));
+            double fp = obj.objDistance * Math.Tan(obj.apertureAngle)  / Math.Tan(output_tmp.u);
+            MessageBox.Show(fp.ToString());
         }
     }
 }
