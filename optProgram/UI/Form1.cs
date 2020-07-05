@@ -186,7 +186,8 @@ namespace optProgram.UI
             //Gaussian Optics
             //Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle), infDistance.Checked);
             optSystem.calAll();
-
+            Form form2=new Form2();
+            form2.ShowDialog();
         }
     }
 }

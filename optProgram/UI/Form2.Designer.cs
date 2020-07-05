@@ -28,12 +28,49 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.resultBtn = new System.Windows.Forms.Button();
+            this.resultDGV = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.resultDGV)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // resultBtn
+            // 
+            this.resultBtn.Location = new System.Drawing.Point(56, 37);
+            this.resultBtn.Name = "resultBtn";
+            this.resultBtn.Size = new System.Drawing.Size(168, 67);
+            this.resultBtn.TabIndex = 0;
+            this.resultBtn.Text = "结果保存";
+            this.resultBtn.UseVisualStyleBackColor = true;
+            this.resultBtn.Click += new System.EventHandler(this.resultBtn_Click);
+            // 
+            // resultDGV
+            // 
+            this.resultDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.resultDGV.Location = new System.Drawing.Point(56, 155);
+            this.resultDGV.Name = "resultDGV";
+            this.resultDGV.ReadOnly = true;
+            this.resultDGV.RowHeadersWidth = 82;
+            this.resultDGV.RowTemplate.Height = 37;
+            this.resultDGV.Size = new System.Drawing.Size(690, 752);
+            this.resultDGV.TabIndex = 1;
+            // 
+            // Form2
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(800, 941);
+            this.Controls.Add(this.resultDGV);
+            this.Controls.Add(this.resultBtn);
+            this.Name = "Form2";
             this.Text = "Form2";
+            ((System.ComponentModel.ISupportInitialize)(this.resultDGV)).EndInit();
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.Button resultBtn;
+        private System.Windows.Forms.DataGridView resultDGV;
     }
 }
