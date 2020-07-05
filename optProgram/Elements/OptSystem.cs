@@ -216,13 +216,11 @@ namespace optProgram.elements
                     double n_tmp = RefractiveIndex.Dequeue();
                     double np_tmp = RefractiveIndex.Peek();
                     double r_tmp = Radius.Dequeue();
-                    double fp = np_tmp / (np_tmp - n_tmp) * r_tmp;
+                    double i = Math.Asin(K2*pupilDiameter/2/r_tmp);
                     double lp_tmp;
-                    if (Interval.Count != 0)
-                        lp_tmp = fp - Interval.Dequeue();
-                    else
-                        lp_tmp = fp;
-                    beam.Add(K2.ToString(), new Beam(lp_tmp, Math.Atan(K2 * pupilDiameter / 2 / fp)));
+                    double up = i-Math.Asin(n_tmp/np_tmp*Math.Sin(i));
+                    lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up);
+                    beam.Add(K2.ToString(), new Beam(lp_tmp, up));
                 }
                 else
                     beam.Add(K2.ToString(), new Beam(obj.objDistance, K2 * Math.Sin(obj.apertureAngle)));
