@@ -219,11 +219,13 @@ namespace optProgram.elements
                     double i = Math.Asin(K2*pupilDiameter/2/r_tmp);
                     double lp_tmp;
                     double up = i-Math.Asin(n_tmp/np_tmp*Math.Sin(i));
+                    if(Interval.Count!=0)
+                        lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up)-Interval.Dequeue();
                     lp_tmp = r_tmp + r_tmp * n_tmp / np_tmp * Math.Sin(i) / Math.Sin(up);
                     beam.Add(K2.ToString(), new Beam(lp_tmp, up));
                 }
                 else
-                    beam.Add(K2.ToString(), new Beam(obj.objDistance, K2 * Math.Sin(obj.apertureAngle)));
+                    beam.Add(K2.ToString(), new Beam(obj.objDistance, K2 * Math.Asin(Math.Sin(obj.apertureAngle))));
             }
             if (flag == 1)
             {
