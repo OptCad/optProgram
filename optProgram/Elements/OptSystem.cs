@@ -17,7 +17,8 @@ namespace optProgram.elements
         double pupilDiameter;
         Obj obj;
         bool isInfinite;
-        Dictionary<double[], Beam> outputReal = new Dictionary<double[], Beam> { };
+        Dictionary<string, Beam> outputReal = new Dictionary<string, Beam> { };
+        Beam outputGaussian;
         public OptSystem(Queue<Sphere> systemdata, Obj obj, bool isInfinite)
         {
             this.isInfinite = isInfinite;
@@ -42,8 +43,7 @@ namespace optProgram.elements
             double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3 };
             double[] K2 = new double[] { 1, 0.85, 0.7, 0.5, 0.3, 0, -1, -0.85, -0.7, -0.5, -0.3 };
             Beam incidentBeamGaussian;
-            Dictionary<double[], Beam> incidentBeamReal;
-            double up_tmp;
+            Dictionary<string, Beam> incidentBeamReal;
             if (obj.objHeight != 0 || obj.fieldAngle != 0)
             {
                 incidentBeamGaussian = initOffaxialGaussian();
@@ -54,23 +54,24 @@ namespace optProgram.elements
                 incidentBeamGaussian = initOnaxialGaussian();
                 incidentBeamReal = initOnAxialReal(K2);
             }
-            
-            Beam outputGaussian = GaussianRefraction(incidentBeamGaussian,new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ));
 
-            //MessageBox.Show("l:" + outputGaussian.l.ToString() + "\nu:" + outputGaussian.u.ToString());
+            outputGaussian = GaussianRefraction(incidentBeamGaussian, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ));
 
-            foreach (KeyValuePair<double[], Beam> kvp in incidentBeamReal)
+            MessageBox.Show("l:" + outputGaussian.l.ToString() + "\nu:" + outputGaussian.u.ToString());
+
+            foreach (KeyValuePair<string, Beam> kvp in incidentBeamReal)
             {
                 outputReal.Add(kvp.Key, RealRefraction(kvp.Value, new Queue<double>(RadiusQ), new Queue<double>(RefractiveIndexQ), new Queue<double>(IntervalQ)));
             }
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
+            sphericalAber(outputReal, outputGaussian);
         }
 
-        private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius ,
-            Queue<double> RefractiveIndex, Queue<double> Interval ) //Calculate exit beam using recursion
+        private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius,
+            Queue<double> RefractiveIndex, Queue<double> Interval) //Calculate exit beam using recursion
         {
-            
+
             if (Radius.Count == 0)
                 return incidentBeam1;
             double u1p, l1p, u2, l2;
@@ -92,14 +93,14 @@ namespace optProgram.elements
             l2 = l1p - Interval.Dequeue();
             Beam incidentBeam2 = new Beam(l2, u2);
 
-            return GaussianRefraction(incidentBeam2,Radius,RefractiveIndex,Interval);
+            return GaussianRefraction(incidentBeam2, Radius, RefractiveIndex, Interval);
         }
 
 
         private Beam RealRefraction(Beam incidentBeam1, Queue<double> Radius,
             Queue<double> RefractiveIndex, Queue<double> Interval) //Calculate exit beam using recursion
         {
-            
+
             double u1p, l1p, u2, l2;
             double incidentAngle, exitAngle;
             double radius = Radius.Dequeue();
@@ -162,18 +163,25 @@ namespace optProgram.elements
         private Beam initOnaxialGaussian()
         {
             Beam beam;
+            Queue<double> RefractiveIndex = new Queue<double>(RefractiveIndexQ);
+            Queue<double> Radius = new Queue<double>(RadiusQ);
+            Queue<double> Interval = new Queue<double>(IntervalQ);
             if (isInfinite == true)
             {
-                double n_tmp = RefractiveIndexQ.Dequeue();
-                double np_tmp = RefractiveIndexQ.Peek();
-                double r_tmp = RadiusQ.Dequeue();
+                RefractiveIndex = new Queue<double>(RefractiveIndexQ);
+                Radius = new Queue<double>(RadiusQ);
+                Interval = new Queue<double>(IntervalQ);
+                double n_tmp = RefractiveIndex.Dequeue();
+                double np_tmp = RefractiveIndex.Peek();
+                double r_tmp = Radius.Dequeue();
                 double fp = np_tmp / (np_tmp - n_tmp) * r_tmp;
                 double lp_tmp;
-                if (IntervalQ.Count != 0)
-                    lp_tmp = fp - IntervalQ.Dequeue();
+                if (Interval.Count != 0)
+                    lp_tmp = fp - Interval.Dequeue();
                 else
                     lp_tmp = fp;
-                beam = new Beam(lp_tmp, pupilDiameter / 2 / fp);
+                beam = new Beam(lp_tmp, -pupilDiameter / 2 / fp);
+
             }
             else
                 beam = new Beam(obj.objDistance, Math.Sin(obj.apertureAngle));
@@ -190,50 +198,74 @@ namespace optProgram.elements
             return beam;
         }
 
-        private Dictionary<double[], Beam> initOnAxialReal(double[] K2s)
+        private Dictionary<string, Beam> initOnAxialReal(double[] K2s)
         {
-            Dictionary<double[], Beam> beam = new Dictionary<double[], Beam> { };
-
+            Dictionary<string, Beam> beam = new Dictionary<string, Beam> { };
+            Queue<double> RefractiveIndex = new Queue<double>(RefractiveIndexQ);
+            Queue<double> Radius = new Queue<double>(RadiusQ);
+            Queue<double> Interval = new Queue<double>(IntervalQ);
+            int flag = 0;
             foreach (double K2 in K2s)
             {
+                RefractiveIndex = new Queue<double>(RefractiveIndexQ);
+                Radius = new Queue<double>(RadiusQ);
+                Interval = new Queue<double>(IntervalQ);
                 if (isInfinite == true)
                 {
-                    double n_tmp = RefractiveIndexQ.Dequeue();
-                    double np_tmp = RefractiveIndexQ.Peek();
-                    double r_tmp = RadiusQ.Dequeue();
+                    flag = 1;
+                    double n_tmp = RefractiveIndex.Dequeue();
+                    double np_tmp = RefractiveIndex.Peek();
+                    double r_tmp = Radius.Dequeue();
                     double fp = np_tmp / (np_tmp - n_tmp) * r_tmp;
                     double lp_tmp;
-                    if (IntervalQ.Count != 0)
-                        lp_tmp = fp - IntervalQ.Dequeue();
+                    if (Interval.Count != 0)
+                        lp_tmp = fp - Interval.Dequeue();
                     else
                         lp_tmp = fp;
-                    beam.Add(new double[] { 2, K2 }, new Beam(lp_tmp, Math.Sin(Math.Atan(K2 * pupilDiameter / 2 / fp))));
+                    beam.Add(K2.ToString(), new Beam(lp_tmp, Math.Sin(Math.Atan(K2 * pupilDiameter / 2 / fp))));
                 }
                 else
-                    beam.Add(new double[] { 2, K2 }, new Beam(obj.objDistance, K2 * Math.Sin(obj.apertureAngle)));
+                    beam.Add(K2.ToString(), new Beam(obj.objDistance, K2 * Math.Sin(obj.apertureAngle)));
+            }
+            if (flag == 1)
+            {
+                IntervalQ.Dequeue();
+                RadiusQ.Dequeue();
             }
             return beam;
         }
 
-        private Dictionary<double[], Beam> initOffAxialReal(double[] K1s, double[] K2s)
+        private Dictionary<string, Beam> initOffAxialReal(double[] K1s, double[] K2s)
         {
-            Dictionary<double[], Beam> beam = new Dictionary<double[], Beam> { };
+            Dictionary<string, Beam> beam = new Dictionary<string, Beam> { };
             foreach (double K1 in K1s)
             {
                 foreach (double K2 in K2s)
                 {
                     if (isInfinite == true)
-                        beam.Add(new double[] { K1, K2 }, new Beam(K2 * pupilDiameter / 2 / Math.Tan(K1 * obj.fieldAngle), K1 * obj.fieldAngle));
+                        beam.Add(K1.ToString() + "  " + K2.ToString(), new Beam(K2 * pupilDiameter / 2 / Math.Tan(K1 * obj.fieldAngle), K1 * obj.fieldAngle));
                     else
                     {
                         double tanU1;
                         tanU1 = (K1 * obj.objHeight - K2 * pupilDiameter / 2) / obj.objDistance;
-                        beam.Add(new double[] { K1, K2 }, new Beam(K2 * pupilDiameter / 2 / tanU1, Math.Atan(tanU1)));
+                        beam.Add(K1.ToString() + "  " + K2.ToString(), new Beam(K2 * pupilDiameter / 2 / tanU1, Math.Atan(tanU1)));
                     }
                 }
             }
 
             return beam;
+        }
+
+        private void sphericalAber(Dictionary<string, Beam> outputReal, Beam outputGaussian)
+        {
+            Dictionary<string, double> SphericalAber = new Dictionary<string, double>();
+
+            Beam outputR1 = outputReal["1"];
+            Beam outputR2 = outputReal["0.7"];
+            SphericalAber.Add("1", outputR1.l - outputGaussian.l);
+            SphericalAber.Add("0.7", outputR2.l - outputGaussian.l);
+            MessageBox.Show("全孔径球差：" + SphericalAber["1"].ToString() + "\n 0.7孔径球差:" + SphericalAber["0.7"]);
+
         }
     }
 }
