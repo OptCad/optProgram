@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Math.EC.Rfc7748;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,19 @@ namespace optProgram.elements
         {
             this.u = u;
             this.l = l;
+        }
+    }
+
+    public class astigBeam
+    {
+        public double u, l,s,t,x;
+        public astigBeam(double l, double u,double s,double t,double x)
+        {
+            this.u = u;
+            this.l = l;
+            this.s = s;
+            this.t = t;
+            this.x = x;
         }
     }
 }

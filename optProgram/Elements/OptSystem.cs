@@ -10,6 +10,7 @@ namespace optProgram.elements
 {
     public class OptSystem
     {
+        astigBeam incident;
         Dictionary<string, Queue<double>> RIndexOn = new Dictionary<string, Queue<double>>();
         Queue<double> RadiusOn = new Queue<double>();
         Queue<double> IntervalOn = new Queue<double>();
@@ -73,10 +74,19 @@ namespace optProgram.elements
         {
             double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3 };
             double[] K2 = new double[] { 1, 0.85, 0.7, 0.5, 0.3, 0, -1, -0.85, -0.7, -0.5, -0.3 };
+
             Dictionary<string, Beam> incidentBeamGaussianOn;
             Dictionary<string, Beam> incidentBeamGaussianOff;
             Dictionary<string, Beam> incidentBeamRealOn;
             Dictionary<string, Beam> incidentBeamRealOff;
+
+            if (isInfinite)
+                incident = new astigBeam(0, obj.fieldAngle, Math.Pow(10, 15), Math.Pow(10, 15), 0);
+            else
+                incident = new astigBeam(obj.objDistance, Math.Atan(obj.objHeight/obj.objDistance), 
+                    Math.Sqrt(obj.objHeight* obj.objHeight+obj.objDistance* obj.objDistance),
+                    Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
+                    0);
 
             RadiusOff = new Queue<double>(RadiusOn);
             IntervalOff = new Queue<double>(IntervalOn);
@@ -124,10 +134,14 @@ namespace optProgram.elements
             //sphericalAber(outputRealOn, outputGaussian);
             idealHeight = idealH(outputGaussianOff);
             realHeight = realH(outputRealOff);
-
-
+            astigBeam output = new astigBeam(0, 0, 0, 0, 0);
+            output = ImageDiffRefraction(incident, new Queue<double>(RadiusOff), new Queue<double>(RIndexOff["d"]), new Queue<double>(IntervalOff));
+            double ltp = output.t * Math.Cos(output.u) + output.x;
+            double lsp = output.s * Math.Cos(output.u) + output.x;
+            double xsp = lsp - output.l;
             MessageBox.Show(realHeight["0.7  0  d"].ToString() + "   " + realHeight["1  0  d"].ToString());
             //Distortion(idealHeight, realHeight);
+
 
         }
 
@@ -356,7 +370,7 @@ namespace optProgram.elements
                 {
                     if (isInfinite)
                     {
-                        idealH = Math.Tan(double.Parse(kvp.Key.Substring(0,kvp.Key.Length-3))*obj.fieldAngle)*basicPoints["fp"];
+                        idealH = Math.Tan(double.Parse(kvp.Key.Substring(0, kvp.Key.Length - 3)) * obj.fieldAngle) * basicPoints["fp"];
                         tmp.Add(kvp.Key, idealH);
                     }
                     else
@@ -380,15 +394,6 @@ namespace optProgram.elements
 
             foreach (KeyValuePair<string, Beam> kvp2 in outputGaussian)
             {
-                /*if (isInfinite)
-
-                {
-                    //realH = Math.Tan(outputGaussian[kvp.Key].u) * (outputGaussianOn.l - outputGaussian[kvp.Key].l);
-                    realH = (outputGaussianOn.l - kvp.Value.l) * Math.Tan(kvp.Value.u);
-                    tmp.Add(kvp.Key, realH);
-                }
-                else
-                {*/
                 string str = kvp2.Key;
                 str = str.Substring(str.Length - 1, 1);
                 realH = (outputGaussianOn[str].l - kvp2.Value.l) * Math.Tan(kvp2.Value.u);
@@ -430,6 +435,49 @@ namespace optProgram.elements
             basicP.Add("lH", lH);
             MessageBox.Show(lp.ToString());
             return basicP;
+        }
+
+
+        private astigBeam ImageDiffRefraction(astigBeam incidentBeam1, Queue<double> Radius,
+            Queue<double> RefractiveIndex, Queue<double> Interval)
+        {
+            
+            double s1p, t1p, s2, t2, PA1,X1,PA2, X2, D1;
+            double incidentAngle, exitAngle;
+            double radius = Radius.Dequeue();
+            double n = RefractiveIndex.Dequeue();
+            double np = RefractiveIndex.Peek();
+
+            //double s1 = t1 = y / Math.Sin(incidentBeam1.u);
+
+            incidentAngle = Math.Asin((incidentBeam1.l - radius) * Math.Sin(incidentBeam1.u) / radius);
+            exitAngle = Math.Asin(n * Math.Sin(incidentAngle) / np);
+
+            IncidentAngleQ.Enqueue(incidentAngle);
+            ExitAngleQ.Enqueue(exitAngle);
+
+            s1p = np / ((np * Math.Cos(exitAngle) - n * Math.Cos(incidentAngle)) / radius + n / incidentBeam1.s);
+            t1p = np * Math.Cos(exitAngle) * Math.Cos(exitAngle) / ((np * Math.Cos(exitAngle) -
+                n * Math.Cos(incidentAngle)) / radius + n * Math.Cos(incidentAngle) * Math.Cos(incidentAngle) / incidentBeam1.t);
+            double u1p = incidentAngle + incidentBeam1.u - exitAngle;
+            double l1p = radius + radius * Math.Sin(exitAngle) / Math.Sin(u1p);
+
+             
+            astigBeam exitBeam1 = new astigBeam(l1p, u1p, s1p, t1p,incidentBeam1.x);
+            if (Radius.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
+            
+            double u2 = u1p;
+            double l2 = l1p - Interval.Peek();
+            double tmp = Math.Asin((l2 - Radius.Peek()) * Math.Sin(u2) / Radius.Peek());
+            PA2 = l2 * Math.Sin(u1p) / Math.Cos((Math.Asin(tmp - u2) / 2));
+            X2 = PA2 * PA2 / 2 / radius;
+            D1 = (Interval.Dequeue() - incidentBeam1.x + X2) / Math.Cos(u1p);
+            t2 = t1p - D1;
+            s2 = s1p - D1;
+
+            astigBeam incidentBeam2 = new astigBeam(l2, u2, s2, t2, X2);
+
+            return ImageDiffRefraction(incidentBeam2, Radius, RefractiveIndex, Interval);
         }
     }
 }
