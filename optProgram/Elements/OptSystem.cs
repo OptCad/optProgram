@@ -531,7 +531,7 @@ namespace optProgram.elements
             double l2 = l1p - Interval.Peek();
             double Inci2 = Math.Asin((l2 - radius2) * Math.Sin(u2) / radius2);
 
-            PA1 = l1p * Math.Sin(u1p) / Math.Cos(0.5 * (exitAngle - u1p));
+            PA1 = incidentBeam1.l * Math.Sin(incidentBeam1.u) / Math.Cos(0.5 * (incidentAngle - incidentBeam1.u));
             X1 = PA1 * PA1 / (2 * radius);
             PA2 = l2 * Math.Sin(u2) / Math.Cos(0.5*(Inci2 - u2));
             X2 = PA2 * PA2 /( 2 * radius2);
