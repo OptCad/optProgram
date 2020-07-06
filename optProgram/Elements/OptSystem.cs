@@ -341,7 +341,7 @@ namespace optProgram.elements
 
         }
 
-        //Calculate the real height of the image, for d-light only
+        //Calculate the ideal height of the image, for d-light only
         private Dictionary<string, double> idealH(Dictionary<string, Beam> outputGaussian)
         {
             Dictionary<string, double> tmp = new Dictionary<string, double>();
@@ -350,17 +350,22 @@ namespace optProgram.elements
             foreach (KeyValuePair<string, Beam> kvp in outputGaussian)
 
             {
-                if (isInfinite)
-
+                string str = kvp.Key;
+                str = str.Substring(str.Length - 1, 1);
+                if (str == "d")
                 {
-                    idealH = Math.Tan(Math.Asin(outputGaussian[kvp.Key].u)) * (outputGaussianOn["d"].l - outputGaussian[kvp.Key].l);
-                    tmp.Add(kvp.Key, idealH);
+                    if (isInfinite)
+                    {
+                        idealH = Math.Tan(double.Parse(kvp.Key.Substring(0,kvp.Key.Length-3))*obj.fieldAngle)*basicPoints["fp"];
+                        tmp.Add(kvp.Key, idealH);
+                    }
+                    else
+                    {
+                        idealH = beta * obj.objHeight;
+                        tmp.Add(kvp.Key, idealH);
+                    }
                 }
-                else
-                {
-                    idealH = beta * obj.objHeight;
-                    tmp.Add(kvp.Key, idealH);
-                }
+                else continue;
             }
 
             return tmp;
