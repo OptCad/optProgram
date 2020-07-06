@@ -18,7 +18,7 @@ namespace optProgram.UI
             DataTable dtinit = new DataTable();
             //"物距l1", "物方孔径角u1", "物方折射率n1",
             String[] init = new String[] {
-                "球面半径r", "折射率n'", "间距d"
+                "球面半径r", "d光折射率nd'","F光折射率nF'","C光折射率nC", "间距d"
                 };
             for (int i = 0; i < init.Length; i++)
             {
@@ -139,7 +139,7 @@ namespace optProgram.UI
             }
             //Construct the whole optical system.
             Queue<Sphere> inputs = new Queue<Sphere>();
-            double envRefractiveIndex = double.Parse(envRefractive.Text);
+            double envRefractiveIndex = 1;
             double pupilD = 0;
             double fieldAng = 0;
             if (infDistance.Checked)
@@ -162,25 +162,29 @@ namespace optProgram.UI
             for (int i = 0; i < dGViewExcel.Rows.Count - 1; i++)
             {
                 double r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
-                double n_tmp = envRefractiveIndex;
+                double nd_tmp = envRefractiveIndex;
+                double nC_tmp = envRefractiveIndex;
+                double nF_tmp = envRefractiveIndex;
                 double d_tmp = 0;
 
                 try
                 {
-                    d_tmp = double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
+                    d_tmp = double.Parse(dGViewExcel.Rows[i].Cells[4].Value.ToString());
                 }
                 catch { }
                 try
                 {
-                    n_tmp = double.Parse(dGViewExcel.Rows[i].Cells[1].Value.ToString());
+                    nd_tmp = double.Parse(dGViewExcel.Rows[i].Cells[1].Value.ToString());
+                    nF_tmp = double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
+                    nC_tmp = double.Parse(dGViewExcel.Rows[i].Cells[3].Value.ToString());
                 }
                 catch { }
                 try
                 {
-                    pupilD = double.Parse(dGViewExcel.Rows[i].Cells[2].Value.ToString());
+                   r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
                 }
                 catch { }
-                Sphere tmp = new Sphere(n_tmp, r_tmp, d_tmp);
+                Sphere tmp = new Sphere(r_tmp,nd_tmp,nF_tmp,nC_tmp, d_tmp);
                 inputs.Enqueue(tmp);
             }
             //Calculate.
