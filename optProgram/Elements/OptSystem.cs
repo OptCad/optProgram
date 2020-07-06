@@ -310,7 +310,7 @@ namespace optProgram.elements
         private Dictionary<string, double> realH(Dictionary<string, Beam> outputGaussian)
         {
             Dictionary<string, double> tmp = new Dictionary<string, double>();
-            double beta =0;
+            
             double realH;
             foreach (KeyValuePair<string, Beam> kvp in outputGaussian)
 
