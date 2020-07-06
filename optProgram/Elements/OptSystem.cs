@@ -119,26 +119,46 @@ namespace optProgram.elements
                 }
             }
 
+
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
-            //sphericalAber(outputRealOn, outputGaussian);
+
+
+
+            
+            
+
+            // Bug detected! Off axis F ray and C ray image height do not coincide with result from Zemax.
+            // Howerver, off axis d ray image height is absolutely correct.
+            
+             realHeight = realH(outputRealOff);
+             lateralChrab(realHeight);
+            
+
+
+            // Output Spherical Aberration and Longitudinal Chromatic Aberration Data(ON AXIS)------complete
+            /*
+            sphericalAber(outputRealOn, outputGaussianOn);
+            longitudinalChrab(outputRealOn, outputGaussianOn);
+            */
+
+            // Output Image Height, Tangential Coma and Distortion Data(Transversal)------complete
+            /*
             idealHeight = idealH(outputGaussianOff);
-            realHeight = realH(outputRealOff);
-
-
-            MessageBox.Show(realHeight["0.7  0  d"].ToString() + "   " + realHeight["1  0  d"].ToString());
-            //Distortion(idealHeight, realHeight);
-
+            realHeight = realH(outputRealOff);                      
+            tanComa(realHeight);
+            Distortion(idealHeight, realHeight);
+            */
         }
 
         private void Distortion(Dictionary<string, double> y0, Dictionary<string, double> yp)
         {
             double absoluteD1, relativeD1, absoluteD7, relativeD7;
-            absoluteD1 = yp["1  0"] - y0["1"];
-            relativeD1 = absoluteD1 / y0["1"] * 100;
-            absoluteD7 = yp["0.7  0"] - y0["0.7"];
-            relativeD7 = absoluteD7 / y0["0.7"] * 100;
-            MessageBox.Show("绝对畸变  全视场：" + absoluteD1.ToString() + "0.7视场：" + absoluteD7.ToString() + "\n相对畸变  全视场：" + relativeD1.ToString() + "%0.7视场：" + relativeD7.ToString() + "%");
+            absoluteD1 = yp["1  0  d"] - y0["1  d"];
+            relativeD1 = absoluteD1 / y0["1  d"] * 100;
+            absoluteD7 = yp["0.7  0  d"] - y0["0.7  d"];
+            relativeD7 = absoluteD7 / y0["0.7  d"] * 100;
+            MessageBox.Show("绝对畸变  全视场：" + absoluteD1.ToString() + " 0.7视场：" + absoluteD7.ToString() + "\n相对畸变  全视场：" + relativeD1.ToString() + "% 0.7视场：" + relativeD7.ToString() + "%");
         }
 
 
@@ -329,16 +349,47 @@ namespace optProgram.elements
             return beam;
         }
 
-        private void sphericalAber(Dictionary<string, Beam> outputReal, Beam outputGaussian)
+        
+        private void sphericalAber(Dictionary<string, Beam> outputReal, Dictionary<string,Beam> outputGaussian)
         {
             Dictionary<string, double> SphericalAber = new Dictionary<string, double>();
 
-            Beam outputR1 = outputReal["1"];
-            Beam outputR2 = outputReal["0.7"];
-            SphericalAber.Add("1", outputR1.l - outputGaussian.l);
-            SphericalAber.Add("0.7", outputR2.l - outputGaussian.l);
-            MessageBox.Show("全孔径球差：" + SphericalAber["1"].ToString() + "\n 0.7孔径球差:" + SphericalAber["0.7"]);
+            Beam outputR1 = outputReal["1  d"];
+            Beam outputR2 = outputReal["0.7  d"];
+            SphericalAber.Add("1  d", outputR1.l - outputGaussian["d"].l);
+            SphericalAber.Add("0.7  d", outputR2.l - outputGaussian["d"].l);
+            MessageBox.Show("全孔径球差d：" + SphericalAber["1  d"].ToString() + "\n 0.7孔径球差d:" + SphericalAber["0.7  d"]);
 
+        }
+        private void longitudinalChrab(Dictionary<string, Beam> outputReal, Dictionary<string, Beam> outputGaussian)
+        {
+            double LCA_0, LCA_7, LCA_1;
+            LCA_0 = outputGaussian["F"].l - outputGaussian["C"].l;
+            LCA_7 = outputReal["0.7  F"].l - outputReal["0.7  C"].l;
+            LCA_1 = outputReal["1  F"].l - outputReal["1  C"].l;
+
+            MessageBox.Show("位置色差F-C\n0孔径："+LCA_0.ToString()+"\n0.7孔径："+LCA_7.ToString()+"\n1孔径：" +LCA_1.ToString());
+
+        }
+
+        private void lateralChrab(Dictionary<string, double> yp)
+        {
+            double LCA_7,LCA_1;
+            LCA_7 = yp["0.7  0  F"] - yp["0.7  0  C"];
+            LCA_1 = yp["1  0  F"] - yp["1  0  C"];
+            MessageBox.Show("倍率色差F-C(μm)\n0.7视场：" + LCA_7.ToString() + "\n1视场：" + LCA_1.ToString());
+
+        }
+
+        private void tanComa(Dictionary<string, double> yp)
+        {
+            double tc77, tc71, tc17, tc11;
+            tc77 = 0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"];
+            tc71 = 0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"];
+            tc17 = 0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"];
+            tc11 = 0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"];
+            MessageBox.Show("子午彗差(μm)\n0.7视场 0.7孔径：" + (1000.0*tc77).ToString() + "\n0.7视场 1孔径：" + (1000.0 * tc71).ToString()+
+                "\n1视场 0.7孔径："+ (1000.0 * tc17).ToString()+"\n1视场 1孔径："+ (1000.0 * tc11).ToString());
         }
 
         //Calculate the ideal height of the image, for d-light only
