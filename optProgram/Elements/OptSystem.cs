@@ -62,8 +62,11 @@ namespace optProgram.elements
             RIndexOn.Add("d", RefractiveIndexOnd);
             RIndexOn.Add("F", RefractiveIndexOnF);
             RIndexOn.Add("C", RefractiveIndexOnC);
+            RIndexOff.Add("d", new Queue<double>(RefractiveIndexOnd));
+            RIndexOff.Add("F", new Queue<double>(RefractiveIndexOnF));
+            RIndexOff.Add("C", new Queue<double>(RefractiveIndexOnC));
 
-            RIndexOff = new Dictionary<string, Queue<double>>(RIndexOn);
+            //RIndexOff = new Dictionary<string, Queue<double>>(RIndexOn);
         }
 
         public void calAll()
@@ -101,14 +104,14 @@ namespace optProgram.elements
                     outputGaussianOff.Add(kvp2.Key + "  " + kvp1.Key, GaussianRefraction(kvp2.Value, new Queue<double>(RadiusOff), new Queue<double>(kvp1.Value), new Queue<double>(IntervalOff)));
                 }
             }
-            foreach (KeyValuePair<string, Queue<double>> kvp1 in RIndexOn)
+            foreach (KeyValuePair<string, Beam> kvp2 in incidentBeamRealOn)
             {
-                foreach (KeyValuePair<string, Beam> kvp2 in incidentBeamRealOn)
-                {
-                    outputRealOn.Add(kvp2.Key + "  " + kvp1.Key, RealRefraction(kvp2.Value, new Queue<double>(RadiusOn), new Queue<double>(kvp1.Value), new Queue<double>(IntervalOn)));
-                }
+                string str = kvp2.Key;
+                str = str.Substring(str.Length - 1, 1);
+                outputRealOn.Add(kvp2.Key, RealRefraction(kvp2.Value, new Queue<double>(RadiusOn), new Queue<double>(RIndexOn[str]), new Queue<double>(IntervalOn)));
             }
-            foreach (KeyValuePair<string, Queue<double>> kvp1 in RIndexOn)
+
+            foreach (KeyValuePair<string, Queue<double>> kvp1 in RIndexOff)
             {
                 foreach (KeyValuePair<string, Beam> kvp2 in incidentBeamRealOff)
                 {
@@ -119,11 +122,11 @@ namespace optProgram.elements
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
             //sphericalAber(outputRealOn, outputGaussian);
-            idealHeight=idealH(outputGaussianOff);
-            realHeight=realH(outputRealOff);
-            
-            
-            MessageBox.Show(realHeight["0.7  0"].ToString()+"   "+realHeight["1  0"].ToString());
+            idealHeight = idealH(outputGaussianOff);
+            realHeight = realH(outputRealOff);
+
+
+            MessageBox.Show(realHeight["0.7  0  d"].ToString() + "   " + realHeight["1  0  d"].ToString());
             //Distortion(idealHeight, realHeight);
 
         }
@@ -132,10 +135,10 @@ namespace optProgram.elements
         {
             double absoluteD1, relativeD1, absoluteD7, relativeD7;
             absoluteD1 = yp["1  0"] - y0["1"];
-            relativeD1 = absoluteD1 / y0["1"]*100;
+            relativeD1 = absoluteD1 / y0["1"] * 100;
             absoluteD7 = yp["0.7  0"] - y0["0.7"];
-            relativeD7 = absoluteD7 / y0["0.7"]*100;
-            MessageBox.Show("绝对畸变  全视场："+absoluteD1.ToString()+"0.7视场："+absoluteD7.ToString()+"\n相对畸变  全视场："+relativeD1.ToString()+"%0.7视场："+relativeD7.ToString()+"%");
+            relativeD7 = absoluteD7 / y0["0.7"] * 100;
+            MessageBox.Show("绝对畸变  全视场：" + absoluteD1.ToString() + "0.7视场：" + absoluteD7.ToString() + "\n相对畸变  全视场：" + relativeD1.ToString() + "%0.7视场：" + relativeD7.ToString() + "%");
         }
 
 
@@ -212,13 +215,15 @@ namespace optProgram.elements
 
         private Dictionary<string, Beam> initOnaxialGaussian()
         {
-            Dictionary<string, Beam> beam=new Dictionary<string, Beam>();
+            Dictionary<string, Beam> beam = new Dictionary<string, Beam>();
             Queue<double> RefractiveIndex = new Queue<double>();
             Queue<double> Radius = new Queue<double>(RadiusOn);
             Queue<double> Interval = new Queue<double>(IntervalOn);
             foreach (KeyValuePair<string, Queue<double>> kvp in RIndexOn)
             {
                 RefractiveIndex = new Queue<double>(kvp.Value);
+                Radius = new Queue<double>(RadiusOn);
+                Interval = new Queue<double>(IntervalOn);
                 if (isInfinite == true)
                 {
 
@@ -235,7 +240,7 @@ namespace optProgram.elements
 
                 }
                 else
-                    beam.Add(kvp.Key,new Beam(obj.objDistance, Math.Sin(obj.apertureAngle)));
+                    beam.Add(kvp.Key, new Beam(obj.objDistance, Math.Sin(obj.apertureAngle)));
             }
             return beam;
         }
@@ -348,7 +353,7 @@ namespace optProgram.elements
                 if (isInfinite)
 
                 {
-                    idealH = Math.Tan(outputGaussian[kvp.Key].u) * (outputGaussianOn["d"].l - outputGaussian[kvp.Key].l);
+                    idealH = Math.Tan(Math.Asin(outputGaussian[kvp.Key].u)) * (outputGaussianOn["d"].l - outputGaussian[kvp.Key].l);
                     tmp.Add(kvp.Key, idealH);
                 }
                 else
@@ -365,26 +370,27 @@ namespace optProgram.elements
         private Dictionary<string, double> realH(Dictionary<string, Beam> outputGaussian)
         {
             Dictionary<string, double> tmp = new Dictionary<string, double>();
-            
-            double realH;
-            foreach (KeyValuePair<string, Beam> kvp1 in outputGaussianOn)
-            {
-                foreach (KeyValuePair<string, Beam> kvp2 in outputGaussian)
-                {
-                    /*if (isInfinite)
 
-                    {
-                        //realH = Math.Tan(outputGaussian[kvp.Key].u) * (outputGaussianOn.l - outputGaussian[kvp.Key].l);
-                        realH = (outputGaussianOn.l - kvp.Value.l) * Math.Tan(kvp.Value.u);
-                        tmp.Add(kvp.Key, realH);
-                    }
-                    else
-                    {*/
-                    realH = (kvp1.Value.l - kvp2.Value.l) * Math.Tan(kvp2.Value.u);
-                    tmp.Add(kvp2.Key + "  " + kvp1.Key, realH);
-                    //}
+            double realH;
+
+            foreach (KeyValuePair<string, Beam> kvp2 in outputGaussian)
+            {
+                /*if (isInfinite)
+
+                {
+                    //realH = Math.Tan(outputGaussian[kvp.Key].u) * (outputGaussianOn.l - outputGaussian[kvp.Key].l);
+                    realH = (outputGaussianOn.l - kvp.Value.l) * Math.Tan(kvp.Value.u);
+                    tmp.Add(kvp.Key, realH);
                 }
+                else
+                {*/
+                string str = kvp2.Key;
+                str = str.Substring(str.Length - 1, 1);
+                realH = (outputGaussianOn[str].l - kvp2.Value.l) * Math.Tan(kvp2.Value.u);
+                tmp.Add(kvp2.Key, realH);
+                //}
             }
+
 
             return tmp;
         }
