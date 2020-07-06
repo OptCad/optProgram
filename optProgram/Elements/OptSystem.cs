@@ -164,8 +164,8 @@ namespace optProgram.elements
             output = ImageDiffRefraction(incident, new Queue<double>(RadiusOff), new Queue<double>(RIndexOff["d"]), new Queue<double>(IntervalOff));
             double ltp = output.t * Math.Cos(output.u) + output.x;
             double lsp = output.s * Math.Cos(output.u) + output.x;
-            double xsp = lsp - output.l;
-            double xtp = ltp - output.l;
+            double xsp = lsp - outputGaussianOn["d"].l;
+            double xtp = ltp - outputGaussianOn["d"].l;
             double deltaXp = xtp - xsp;
             double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
             MessageBox.Show("xsp = "+xsp.ToString()+"\nxtp = "+xtp.ToString()+"\nΔxp = "+deltaXp.ToString()+"or"+deltaXpsub.ToString());
