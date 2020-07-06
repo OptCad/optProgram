@@ -82,7 +82,7 @@ namespace optProgram.elements
             Dictionary<string, Beam> incidentBeamRealOff;
 
             if (isInfinite)
-                incident = new astigBeam(0, obj.fieldAngle, Math.Pow(10, 15), Math.Pow(10, 15), 0);
+                incident = new astigBeam(0, obj.fieldAngle, Math.Pow(-10, 15), Math.Pow(-10, 15), 0);
             else
                 incident = new astigBeam(obj.objDistance, Math.Atan(obj.objHeight / obj.objDistance),
                     Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
@@ -165,7 +165,10 @@ namespace optProgram.elements
             double ltp = output.t * Math.Cos(output.u) + output.x;
             double lsp = output.s * Math.Cos(output.u) + output.x;
             double xsp = lsp - output.l;
-            MessageBox.Show(realHeight["0.7  0  d"].ToString() + "   " + realHeight["1  0  d"].ToString());
+            double xtp = ltp - output.l;
+            double deltaXp = xtp - xsp;
+            double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
+            MessageBox.Show("xsp = "+xsp.ToString()+"\nxtp = "+xtp.ToString()+"\nΔxp = "+deltaXp.ToString()+"or"+deltaXpsub.ToString());
         }
 
         private void Distortion(Dictionary<string, double> y0, Dictionary<string, double> yp)
@@ -502,16 +505,16 @@ namespace optProgram.elements
             double s1p, t1p, s2, t2, PA1, X1, PA2, X2, D1;
             double incidentAngle, exitAngle;
             double radius = Radius.Dequeue();
+            
             double n = RefractiveIndex.Dequeue();
             double np = RefractiveIndex.Peek();
 
-            //double s1 = t1 = y / Math.Sin(incidentBeam1.u);
-
+           
             incidentAngle = Math.Asin((incidentBeam1.l - radius) * Math.Sin(incidentBeam1.u) / radius);
             exitAngle = Math.Asin(n * Math.Sin(incidentAngle) / np);
 
-            IncidentAngleQ.Enqueue(incidentAngle);
-            ExitAngleQ.Enqueue(exitAngle);
+            //IncidentAngleQ.Enqueue(incidentAngle);
+            //ExitAngleQ.Enqueue(exitAngle);
 
             s1p = np / ((np * Math.Cos(exitAngle) - n * Math.Cos(incidentAngle)) / radius + n / incidentBeam1.s);
             t1p = np * Math.Cos(exitAngle) * Math.Cos(exitAngle) / ((np * Math.Cos(exitAngle) -
@@ -523,12 +526,17 @@ namespace optProgram.elements
             astigBeam exitBeam1 = new astigBeam(l1p, u1p, s1p, t1p, incidentBeam1.x);
             if (Radius.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
 
+            double radius2 = Radius.Peek();
             double u2 = u1p;
             double l2 = l1p - Interval.Peek();
-            double tmp = Math.Asin((l2 - Radius.Peek()) * Math.Sin(u2) / Radius.Peek());
-            PA2 = l2 * Math.Sin(u1p) / Math.Cos((Math.Asin(tmp - u2) / 2));
-            X2 = PA2 * PA2 / 2 / radius;
-            D1 = (Interval.Dequeue() - incidentBeam1.x + X2) / Math.Cos(u1p);
+            double Inci2 = Math.Asin((l2 - radius2) * Math.Sin(u2) / radius2);
+
+            PA1 = l1p * Math.Sin(u1p) / Math.Cos(0.5 * (exitAngle - u1p));
+            X1 = PA1 * PA1 / (2 * radius);
+            PA2 = l2 * Math.Sin(u2) / Math.Cos(0.5*(Inci2 - u2));
+            X2 = PA2 * PA2 /( 2 * radius2);
+
+            D1 = (Interval.Dequeue() - X1 + X2) / Math.Cos(u1p);
             t2 = t1p - D1;
             s2 = s1p - D1;
 
