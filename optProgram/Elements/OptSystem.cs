@@ -30,6 +30,7 @@ namespace optProgram.elements
 
         Dictionary<string, double> basicPoints = new Dictionary<string, double> { };
         Dictionary<string, double> idealHeight = new Dictionary<string, double> { };
+        Dictionary<string, double> realHeight = new Dictionary<string, double> { };
 
 
         public OptSystem(Queue<Sphere> systemdata, Obj obj, bool isInfinite)
@@ -93,7 +94,7 @@ namespace optProgram.elements
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
             //sphericalAber(outputRealOn, outputGaussian);
             idealHeight=idealH(outputGaussianOff);
-            realH(outputRealOff);
+            realHeight=realH(outputRealOff);
         }
 
         private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius,
@@ -256,12 +257,14 @@ namespace optProgram.elements
                 foreach (double K2 in K2s)
                 {
                     if (isInfinite == true)
-                        beam.Add(K1.ToString() + "  " + K2.ToString(), new Beam(K2 * pupilDiameter / 2 / Math.Tan(K1 * obj.fieldAngle), K1 * obj.fieldAngle));
+                        beam.Add(K1.ToString() + "  " + K2.ToString(), new Beam(K2 * pupilDiameter / 2 / Math.Tan(K1 * obj.fieldAngle), 
+                            K1 * obj.fieldAngle));
                     else
                     {
                         double tanU1;
                         tanU1 = (K1 * obj.objHeight - K2 * pupilDiameter / 2) / obj.objDistance;
-                        beam.Add(K1.ToString() + "  " + K2.ToString(), new Beam(K2 * pupilDiameter / 2 / tanU1, Math.Atan(tanU1)));
+                        beam.Add(K1.ToString() + "  " + K2.ToString(), new Beam(K2 * pupilDiameter / 2 / tanU1, 
+                            Math.Atan(tanU1)));
                     }
                 }
             }
@@ -304,29 +307,29 @@ namespace optProgram.elements
        
             return tmp;
         }
-        private void realH(Dictionary<string, Beam> outputGaussian)
+        private Dictionary<string, double> realH(Dictionary<string, Beam> outputGaussian)
         {
             Dictionary<string, double> tmp = new Dictionary<string, double>();
             double beta =0;
-            double idealH;
+            double realH;
             foreach (KeyValuePair<string, Beam> kvp in outputGaussian)
 
             {
                 if (isInfinite)
 
                 {
-                    idealH = Math.Tan(outputGaussian[kvp.Key].u) * (outputGaussianOn.l - outputGaussian[kvp.Key].l);
-                    tmp.Add(kvp.Key, idealH);
+                    //realH = Math.Tan(outputGaussian[kvp.Key].u) * (outputGaussianOn.l - outputGaussian[kvp.Key].l);
+                    realH = (outputGaussianOn.l - kvp.Value.l) * Math.Tan(kvp.Value.u);
+                    tmp.Add(kvp.Key, realH);
                 }
                 else
                 {
-                    beta = obj.apertureAngle/outputGaussian[kvp.Key].u;
-                    idealH = beta * obj.objHeight;
-                    tmp.Add(kvp.Key, idealH);
+                    realH = (outputGaussianOn.l - kvp.Value.l) * Math.Tan(kvp.Value.u);
+                    tmp.Add(kvp.Key, realH);
                 }
             }
 
-            /*return tmp;*/
+            return tmp;
         }
 
         private Dictionary<string, double> calBasicPoints(Beam outputGaussian)
