@@ -119,9 +119,27 @@ namespace optProgram.elements
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
             //sphericalAber(outputRealOn, outputGaussian);
-            idealHeight = idealH(outputGaussianOff);
-            realHeight = realH(outputRealOff);
+            idealHeight=idealH(outputGaussianOff);
+            realHeight=realH(outputRealOff);
+            
+            
+            MessageBox.Show(realHeight["0.7  0"].ToString()+"   "+realHeight["1  0"].ToString());
+            //Distortion(idealHeight, realHeight);
+
         }
+
+        private void Distortion(Dictionary<string, double> y0, Dictionary<string, double> yp)
+        {
+            double absoluteD1, relativeD1, absoluteD7, relativeD7;
+            absoluteD1 = yp["1  0"] - y0["1"];
+            relativeD1 = absoluteD1 / y0["1"]*100;
+            absoluteD7 = yp["0.7  0"] - y0["0.7"];
+            relativeD7 = absoluteD7 / y0["0.7"]*100;
+            MessageBox.Show("绝对畸变  全视场："+absoluteD1.ToString()+"0.7视场："+absoluteD7.ToString()+"\n相对畸变  全视场："+relativeD1.ToString()+"%0.7视场："+relativeD7.ToString()+"%");
+        }
+
+
+
 
         private Beam GaussianRefraction(Beam incidentBeam1, Queue<double> Radius,
             Queue<double> RefractiveIndex, Queue<double> Interval) //Calculate exit beam using recursion
@@ -347,7 +365,7 @@ namespace optProgram.elements
         private Dictionary<string, double> realH(Dictionary<string, Beam> outputGaussian)
         {
             Dictionary<string, double> tmp = new Dictionary<string, double>();
-            double beta = 0;
+            
             double realH;
             foreach (KeyValuePair<string, Beam> kvp1 in outputGaussianOn)
             {
