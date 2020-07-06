@@ -25,7 +25,7 @@ namespace optProgram.elements
         double pupilDiameter;
         Obj obj;
         bool isInfinite;
-
+        List<string> totalOutput = new List<string>();
 
         Dictionary<string, Beam> outputRealOn = new Dictionary<string, Beam> { };
         Dictionary<string, Beam> outputRealOff = new Dictionary<string, Beam> { };
@@ -94,6 +94,8 @@ namespace optProgram.elements
 
 
             basicPoints = calBasicPoints();
+            totalOutput.Add(basicPoints["fp"].ToString());
+
             incidentBeamGaussianOff = initOffaxialGaussian(K1);
             incidentBeamRealOff = initOffAxialReal(K1, K2);
 
@@ -130,6 +132,18 @@ namespace optProgram.elements
                 }
             }
 
+            foreach (KeyValuePair<string, Beam> kvp in outputGaussianOn)
+                totalOutput.Add(kvp.Value.l.ToString());
+            totalOutput.Add(outputRealOn["1  d"].l.ToString());
+            totalOutput.Add(outputRealOn["0.7  d"].l.ToString());
+            totalOutput.Add(outputRealOn["1  C"].l.ToString());
+            totalOutput.Add(outputRealOn["0.7  C"].l.ToString());
+            totalOutput.Add(outputRealOn["1  F"].l.ToString());
+            totalOutput.Add(outputRealOn["0.7  F"].l.ToString());
+            totalOutput.Add(basicPoints["lH"].ToString());
+            totalOutput.Add(basicPoints["lp"].ToString());
+
+
 
             /*Beam outputReal = RealRefraction(incidentBeam, isInfinite);
             MessageBox.Show("l:" + outputReal.l.ToString() + "\nu:" + outputReal.u.ToString());*/
@@ -141,25 +155,36 @@ namespace optProgram.elements
 
             // Bug detected! Off axis F ray and C ray image height do not coincide with result from Zemax.
             // Howerver, off axis d ray image height is absolutely correct.
-
+            idealHeight = idealH(outputGaussianOff);
             realHeight = realH(outputRealOff);
-            lateralChrab(realHeight);
+            
+            totalOutput.Add(idealHeight["1  d"].ToString());
+            totalOutput.Add(idealHeight["0.7  d"].ToString());
 
 
 
             // Output Spherical Aberration and Longitudinal Chromatic Aberration Data(ON AXIS)------complete
-            /*
+
             sphericalAber(outputRealOn, outputGaussianOn);
             longitudinalChrab(outputRealOn, outputGaussianOn);
-            */
+
 
             // Output Image Height, Tangential Coma and Distortion Data(Transversal)------complete
-            /*
-            idealHeight = idealH(outputGaussianOff);
-            realHeight = realH(outputRealOff);                      
-            tanComa(realHeight);
+            totalOutput.Add("0");
+            totalOutput.Add("0");
+            totalOutput.Add("0");
+
+            totalOutput.Add(realHeight["0.7  0  F"].ToString());
+            totalOutput.Add(realHeight["1  0  F"].ToString());
+            totalOutput.Add(realHeight["0.7  0  d"].ToString());
+            totalOutput.Add(realHeight["1  0  d"].ToString());
+            totalOutput.Add(realHeight["0.7  0  C"].ToString());
+            totalOutput.Add(realHeight["1  0  C"].ToString());
             Distortion(idealHeight, realHeight);
-            */
+            lateralChrab(realHeight);
+            tanComa(realHeight);
+
+
             astigBeam output = new astigBeam(0, 0, 0, 0, 0);
             output = ImageDiffRefraction(incident, new Queue<double>(RadiusOff), new Queue<double>(RIndexOff["d"]), new Queue<double>(IntervalOff));
             double ltp = output.t * Math.Cos(output.u) + output.x;
@@ -169,6 +194,8 @@ namespace optProgram.elements
             double deltaXp = xtp - xsp;
             double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
             MessageBox.Show("xsp = "+xsp.ToString()+"\nxtp = "+xtp.ToString()+"\nΔxp = "+deltaXp.ToString()+"or"+deltaXpsub.ToString());
+            Form form2 = new Form2(totalOutput);
+            form2.ShowDialog();
         }
 
         private void Distortion(Dictionary<string, double> y0, Dictionary<string, double> yp)
@@ -178,7 +205,11 @@ namespace optProgram.elements
             relativeD1 = absoluteD1 / y0["1  d"] * 100;
             absoluteD7 = yp["0.7  0  d"] - y0["0.7  d"];
             relativeD7 = absoluteD7 / y0["0.7  d"] * 100;
-            MessageBox.Show("绝对畸变  全视场：" + absoluteD1.ToString() + " 0.7视场：" + absoluteD7.ToString() + "\n相对畸变  全视场：" + relativeD1.ToString() + "% 0.7视场：" + relativeD7.ToString() + "%");
+            totalOutput.Add(relativeD7.ToString() + "%");
+            totalOutput.Add(relativeD1.ToString() + "%");
+            totalOutput.Add(absoluteD7.ToString());
+            totalOutput.Add(absoluteD1.ToString());
+
         }
 
 
@@ -331,7 +362,7 @@ namespace optProgram.elements
                         beam.Add(K2.ToString() + "  " + kvp.Key, new Beam(lp_tmp, up));
                     }
                     else
-                        beam.Add(K2.ToString() + "  " + kvp.Key, new Beam(obj.objDistance,Math.Asin(K2* Math.Sin(Math.Atan( obj.pupilDiameter /2/ obj.objDistance)))));
+                        beam.Add(K2.ToString() + "  " + kvp.Key, new Beam(obj.objDistance, Math.Atan(K2 * obj.pupilDiameter / 2 / obj.objDistance)));
                 }
             }
             if (flag == 1)
@@ -378,7 +409,8 @@ namespace optProgram.elements
             Beam outputR2 = outputReal["0.7  d"];
             SphericalAber.Add("1  d", outputR1.l - outputGaussian["d"].l);
             SphericalAber.Add("0.7  d", outputR2.l - outputGaussian["d"].l);
-            MessageBox.Show("全孔径球差d：" + SphericalAber["1  d"].ToString() + "\n 0.7孔径球差d:" + SphericalAber["0.7  d"]);
+            totalOutput.Add(SphericalAber["0.7  d"].ToString());
+            totalOutput.Add(SphericalAber["1  d"].ToString());
 
         }
         private void longitudinalChrab(Dictionary<string, Beam> outputReal, Dictionary<string, Beam> outputGaussian)
@@ -388,7 +420,9 @@ namespace optProgram.elements
             LCA_7 = outputReal["0.7  F"].l - outputReal["0.7  C"].l;
             LCA_1 = outputReal["1  F"].l - outputReal["1  C"].l;
 
-            MessageBox.Show("位置色差F-C\n0孔径：" + LCA_0.ToString() + "\n0.7孔径：" + LCA_7.ToString() + "\n1孔径：" + LCA_1.ToString());
+            totalOutput.Add(LCA_7.ToString());
+            totalOutput.Add(LCA_1.ToString());
+            totalOutput.Add(LCA_0.ToString());
 
         }
 
@@ -397,19 +431,22 @@ namespace optProgram.elements
             double LCA_7, LCA_1;
             LCA_7 = yp["0.7  0  F"] - yp["0.7  0  C"];
             LCA_1 = yp["1  0  F"] - yp["1  0  C"];
-            MessageBox.Show("倍率色差F-C(μm)\n0.7视场：" + LCA_7.ToString() + "\n1视场：" + LCA_1.ToString());
+            totalOutput.Add(LCA_7.ToString());
+            totalOutput.Add(LCA_1.ToString());
 
         }
 
         private void tanComa(Dictionary<string, double> yp)
         {
             double tc77, tc71, tc17, tc11;
-            tc77 = 0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"];
-            tc71 = 0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"];
-            tc17 = 0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"];
-            tc11 = 0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"];
-            MessageBox.Show("子午彗差(μm)\n0.7视场 0.7孔径：" + (1000.0 * tc77).ToString() + "\n0.7视场 1孔径：" + (1000.0 * tc71).ToString() +
-                "\n1视场 0.7孔径：" + (1000.0 * tc17).ToString() + "\n1视场 1孔径：" + (1000.0 * tc11).ToString());
+            tc77 = 1000*(0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"]);
+            tc71 = 1000*(0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"]);
+            tc17 = 1000*(0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"]);
+            tc11 = 1000*(0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"]);
+            totalOutput.Add(tc77.ToString());
+            totalOutput.Add(tc71.ToString());
+            totalOutput.Add(tc17.ToString());
+            totalOutput.Add(tc11.ToString());
         }
 
         //Calculate the ideal height of the image, for d-light only
@@ -432,7 +469,8 @@ namespace optProgram.elements
                     }
                     else
                     {
-                        idealH = beta * obj.objHeight;
+
+                        idealH = beta * obj.objHeight * double.Parse(kvp.Key.Substring(0, kvp.Key.Length - 3));
                         tmp.Add(kvp.Key, idealH);
                     }
                 }
@@ -455,7 +493,7 @@ namespace optProgram.elements
                 string output = Regex.Match(kvp2.Key, pattern).Value;
                 string str = kvp2.Key;
                 str = str.Substring(str.Length - 1, 1);
-                realH = (outputGaussianOn[str].l - kvp2.Value.l) *
+                realH = (outputGaussianOn["d"].l - kvp2.Value.l) *
                     Math.Tan(kvp2.Value.u);
                 tmp.Add(kvp2.Key, realH);
                 //}
@@ -474,7 +512,7 @@ namespace optProgram.elements
             Queue<double> Interval = new Queue<double>(IntervalOn);
             Dictionary<string, double> basicP = new Dictionary<string, double>();
 
-            incident_tmp = new Beam(0, 0.0001);
+            incident_tmp = new Beam(0, 0.0000000001);
             Beam output_tmp = GaussianRefraction(incident_tmp, new Queue<double>(Radius), new Queue<double>(RefractiveIndex), new Queue<double>(Interval));
             double lp = output_tmp.l;
             basicP.Add("lp", lp);
@@ -487,13 +525,12 @@ namespace optProgram.elements
                 lp_tmp = fp_tmp - Interval.Dequeue();
             else
                 lp_tmp = fp_tmp;
-            incident_tmp = new Beam(lp_tmp, 0.0001 / fp_tmp);
+            incident_tmp = new Beam(lp_tmp, 0.0000000001 / fp_tmp);
             output_tmp = GaussianRefraction(incident_tmp, new Queue<double>(Radius), new Queue<double>(RefractiveIndex), new Queue<double>(Interval));
-            double fp = 0.0001 / Math.Tan(output_tmp.u);
+            double fp = 0.0000000001 / Math.Tan(output_tmp.u);
             basicP.Add("fp", fp);
             double lH = output_tmp.l - fp;
             basicP.Add("lH", lH);
-            MessageBox.Show(lp.ToString());
             return basicP;
         }
 
@@ -502,7 +539,7 @@ namespace optProgram.elements
             Queue<double> RefractiveIndex, Queue<double> Interval)
         {
 
-            double s1p, t1p, s2, t2, PA1, X1, PA2, X2, D1;
+            double s1p, t1p, s2, t2, PA1,X1,PA2, X2, D1;
             double incidentAngle, exitAngle;
             double radius = Radius.Dequeue();
             

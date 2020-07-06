@@ -1,4 +1,6 @@
-﻿namespace optProgram.UI
+﻿using System.Data;
+
+namespace optProgram.UI
 {
     partial class Form2
     {
@@ -51,14 +53,14 @@
             this.resultDGV.ReadOnly = true;
             this.resultDGV.RowHeadersWidth = 82;
             this.resultDGV.RowTemplate.Height = 37;
-            this.resultDGV.Size = new System.Drawing.Size(690, 752);
+            this.resultDGV.Size = new System.Drawing.Size(1374, 752);
             this.resultDGV.TabIndex = 1;
             // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 941);
+            this.ClientSize = new System.Drawing.Size(1507, 941);
             this.Controls.Add(this.resultDGV);
             this.Controls.Add(this.resultBtn);
             this.Name = "Form2";
