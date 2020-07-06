@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace optProgram.elements
 {
@@ -83,8 +84,8 @@ namespace optProgram.elements
             if (isInfinite)
                 incident = new astigBeam(0, obj.fieldAngle, Math.Pow(10, 15), Math.Pow(10, 15), 0);
             else
-                incident = new astigBeam(obj.objDistance, Math.Atan(obj.objHeight/obj.objDistance), 
-                    Math.Sqrt(obj.objHeight* obj.objHeight+obj.objDistance* obj.objDistance),
+                incident = new astigBeam(obj.objDistance, Math.Atan(obj.objHeight / obj.objDistance),
+                    Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
                     Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
                     0);
 
@@ -135,14 +136,14 @@ namespace optProgram.elements
 
 
 
-            
-            
+
+
 
             // Bug detected! Off axis F ray and C ray image height do not coincide with result from Zemax.
             // Howerver, off axis d ray image height is absolutely correct.
-            
-             realHeight = realH(outputRealOff);
-             lateralChrab(realHeight);
+
+            realHeight = realH(outputRealOff);
+            lateralChrab(realHeight);
 
 
 
@@ -327,7 +328,7 @@ namespace optProgram.elements
                         beam.Add(K2.ToString() + "  " + kvp.Key, new Beam(lp_tmp, up));
                     }
                     else
-                        beam.Add(K2.ToString() + "  " + kvp.Key, new Beam(obj.objDistance, Math.Asin(K2 * Math.Sin(obj.apertureAngle))));
+                        beam.Add(K2.ToString() + "  " + kvp.Key, new Beam(obj.objDistance,Math.Asin(K2* Math.Sin(Math.Atan( obj.pupilDiameter /2/ obj.objDistance)))));
                 }
             }
             if (flag == 1)
@@ -365,8 +366,8 @@ namespace optProgram.elements
             return beam;
         }
 
-        
-        private void sphericalAber(Dictionary<string, Beam> outputReal, Dictionary<string,Beam> outputGaussian)
+
+        private void sphericalAber(Dictionary<string, Beam> outputReal, Dictionary<string, Beam> outputGaussian)
         {
             Dictionary<string, double> SphericalAber = new Dictionary<string, double>();
 
@@ -384,13 +385,13 @@ namespace optProgram.elements
             LCA_7 = outputReal["0.7  F"].l - outputReal["0.7  C"].l;
             LCA_1 = outputReal["1  F"].l - outputReal["1  C"].l;
 
-            MessageBox.Show("位置色差F-C\n0孔径："+LCA_0.ToString()+"\n0.7孔径："+LCA_7.ToString()+"\n1孔径：" +LCA_1.ToString());
+            MessageBox.Show("位置色差F-C\n0孔径：" + LCA_0.ToString() + "\n0.7孔径：" + LCA_7.ToString() + "\n1孔径：" + LCA_1.ToString());
 
         }
 
         private void lateralChrab(Dictionary<string, double> yp)
         {
-            double LCA_7,LCA_1;
+            double LCA_7, LCA_1;
             LCA_7 = yp["0.7  0  F"] - yp["0.7  0  C"];
             LCA_1 = yp["1  0  F"] - yp["1  0  C"];
             MessageBox.Show("倍率色差F-C(μm)\n0.7视场：" + LCA_7.ToString() + "\n1视场：" + LCA_1.ToString());
@@ -404,8 +405,8 @@ namespace optProgram.elements
             tc71 = 0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"];
             tc17 = 0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"];
             tc11 = 0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"];
-            MessageBox.Show("子午彗差(μm)\n0.7视场 0.7孔径：" + (1000.0*tc77).ToString() + "\n0.7视场 1孔径：" + (1000.0 * tc71).ToString()+
-                "\n1视场 0.7孔径："+ (1000.0 * tc17).ToString()+"\n1视场 1孔径："+ (1000.0 * tc11).ToString());
+            MessageBox.Show("子午彗差(μm)\n0.7视场 0.7孔径：" + (1000.0 * tc77).ToString() + "\n0.7视场 1孔径：" + (1000.0 * tc71).ToString() +
+                "\n1视场 0.7孔径：" + (1000.0 * tc17).ToString() + "\n1视场 1孔径：" + (1000.0 * tc11).ToString());
         }
 
         //Calculate the ideal height of the image, for d-light only
@@ -447,9 +448,12 @@ namespace optProgram.elements
 
             foreach (KeyValuePair<string, Beam> kvp2 in outputGaussian)
             {
+                string pattern = @"[+-]?\d+[\.]?\d*";
+                string output = Regex.Match(kvp2.Key, pattern).Value;
                 string str = kvp2.Key;
                 str = str.Substring(str.Length - 1, 1);
-                realH = (outputGaussianOn[str].l - kvp2.Value.l) * Math.Tan(kvp2.Value.u);
+                realH = (outputGaussianOn[str].l - kvp2.Value.l) *
+                    Math.Tan(kvp2.Value.u);
                 tmp.Add(kvp2.Key, realH);
                 //}
             }
@@ -494,8 +498,8 @@ namespace optProgram.elements
         private astigBeam ImageDiffRefraction(astigBeam incidentBeam1, Queue<double> Radius,
             Queue<double> RefractiveIndex, Queue<double> Interval)
         {
-            
-            double s1p, t1p, s2, t2, PA1,X1,PA2, X2, D1;
+
+            double s1p, t1p, s2, t2, PA1, X1, PA2, X2, D1;
             double incidentAngle, exitAngle;
             double radius = Radius.Dequeue();
             double n = RefractiveIndex.Dequeue();
@@ -515,10 +519,10 @@ namespace optProgram.elements
             double u1p = incidentAngle + incidentBeam1.u - exitAngle;
             double l1p = radius + radius * Math.Sin(exitAngle) / Math.Sin(u1p);
 
-             
-            astigBeam exitBeam1 = new astigBeam(l1p, u1p, s1p, t1p,incidentBeam1.x);
+
+            astigBeam exitBeam1 = new astigBeam(l1p, u1p, s1p, t1p, incidentBeam1.x);
             if (Radius.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
-            
+
             double u2 = u1p;
             double l2 = l1p - Interval.Peek();
             double tmp = Math.Asin((l2 - Radius.Peek()) * Math.Sin(u2) / Radius.Peek());

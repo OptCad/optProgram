@@ -71,22 +71,20 @@ namespace optProgram.UI
             {
                 objectDistance.Text = "";
                 objectDistance.Enabled = false;
-                apertureAngle.Text = "";
-                apertureAngle.Enabled = false;
+               
                 objHeight.Text = "";
                 objHeight.Enabled = false;
                 fieldAngle.Enabled = true;
-                pupilDiameter.Enabled = true;
+                
             }
             else
             {
-                apertureAngle.Enabled = true;
+               
                 objectDistance.Enabled = true;
                 objHeight.Enabled = true;
                 fieldAngle.Text = "";
                 fieldAngle.Enabled = false;
-                pupilDiameter.Enabled = false;
-                pupilDiameter.Text = "";
+               
             }
         }
 
@@ -119,18 +117,16 @@ namespace optProgram.UI
             {
                 //Read the object
                 double test = double.Parse(envRefractive.Text);
+                test = double.Parse(pupilDiameter.Text);
                 //To deal with the infinite objectDistance
                 if (infDistance.Checked == false)
                 {
                     test = double.Parse(objectDistance.Text);
-                    test = double.Parse(apertureAngle.Text);
                     test = double.Parse(objHeight.Text);
                 }
                 else {
-                    test = double.Parse(pupilDiameter.Text);
                     test = double.Parse(fieldAngle.Text);
                 }
-
             }
             catch
             {
@@ -142,9 +138,9 @@ namespace optProgram.UI
             double envRefractiveIndex = 1;
             double pupilD = 0;
             double fieldAng = 0;
+            pupilD = double.Parse(pupilDiameter.Text);
             if (infDistance.Checked)
             {
-                pupilD = double.Parse(pupilDiameter.Text);
                 fieldAng = double.Parse(fieldAngle.Text);
             }
             Obj obj;
@@ -154,8 +150,8 @@ namespace optProgram.UI
                 obj = new Obj(env_n: envRefractiveIndex, fieldAng: fieldAng, pupilD: pupilD);
             else
             {
-                pupilD = 2*Math.Tan(double.Parse(apertureAngle.Text))* double.Parse(objectDistance.Text);
-                obj = new Obj(distance: double.Parse(objectDistance.Text), angle: double.Parse(apertureAngle.Text), env_n: envRefractiveIndex, objHeight: double.Parse(objHeight.Text), pupilD:pupilD);
+                double ang = Math.Atan(pupilD/2 / double.Parse(objectDistance.Text));
+                obj = new Obj(distance: double.Parse(objectDistance.Text), angle: ang, env_n: envRefractiveIndex, objHeight: double.Parse(objHeight.Text), pupilD:pupilD);
 
             }
             //Read the data from the table.
