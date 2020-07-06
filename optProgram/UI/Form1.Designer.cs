@@ -121,6 +121,7 @@
             this.objectDistance.Size = new System.Drawing.Size(133, 35);
             this.objectDistance.TabIndex = 6;
             this.objectDistance.Tag = "";
+            this.objectDistance.Text = "-500";
             // 
             // envRefractive
             // 
@@ -128,6 +129,7 @@
             this.envRefractive.Name = "envRefractive";
             this.envRefractive.Size = new System.Drawing.Size(133, 35);
             this.envRefractive.TabIndex = 6;
+            this.envRefractive.Text = "1";
             // 
             // label1
             // 
@@ -162,6 +164,7 @@
             this.pupilDiameter.Name = "pupilDiameter";
             this.pupilDiameter.Size = new System.Drawing.Size(133, 35);
             this.pupilDiameter.TabIndex = 6;
+            this.pupilDiameter.Text = "20";
             // 
             // label5
             // 
@@ -195,6 +198,7 @@
             this.objHeight.Name = "objHeight";
             this.objHeight.Size = new System.Drawing.Size(133, 35);
             this.objHeight.TabIndex = 6;
+            this.objHeight.Text = "26";
             // 
             // Form1
             // 
