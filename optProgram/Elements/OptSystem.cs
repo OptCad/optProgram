@@ -539,7 +539,7 @@ namespace optProgram.elements
             Queue<double> RefractiveIndex, Queue<double> Interval)
         {
 
-            double s1p, t1p, s2, t2, PA2, X2, D1;
+            double s1p, t1p, s2, t2, PA1,X1,PA2, X2, D1;
             double incidentAngle, exitAngle;
             double radius = Radius.Dequeue();
             
