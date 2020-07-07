@@ -68,11 +68,17 @@ namespace optProgram.elements
             RIndexOff.Add("F", new Queue<double>(RefractiveIndexOnF));
             RIndexOff.Add("C", new Queue<double>(RefractiveIndexOnC));
 
-            //RIndexOff = new Dictionary<string, Queue<double>>(RIndexOn);
+            
         }
 
         public void calAll()
         {
+
+            if (RadiusOn.Count == 0)
+            {
+                MessageBox.Show("请输入有效值！");
+                return;
+            }
             double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3 };
             double[] K2 = new double[] { 1, 0.85, 0.7, 0.5, 0.3, 0, -1, -0.85, -0.7, -0.5, -0.3 };
 
@@ -132,8 +138,8 @@ namespace optProgram.elements
                 }
             }
 
-            
-                totalOutput.Add(outputGaussianOn["d"].l.ToString());
+
+            totalOutput.Add(outputGaussianOn["d"].l.ToString());
             totalOutput.Add(outputGaussianOn["C"].l.ToString());
             totalOutput.Add(outputGaussianOn["F"].l.ToString());
             totalOutput.Add(outputRealOn["1  d"].l.ToString());
@@ -142,7 +148,7 @@ namespace optProgram.elements
             totalOutput.Add(outputRealOn["0.7  C"].l.ToString());
             totalOutput.Add(outputRealOn["1  F"].l.ToString());
             totalOutput.Add(outputRealOn["0.7  F"].l.ToString());
-            totalOutput.Add(basicPoints["lH"].ToString());
+            totalOutput.Add(Math.Abs(basicPoints["lH"]).ToString());
             totalOutput.Add(basicPoints["lp"].ToString());
 
 
@@ -159,9 +165,9 @@ namespace optProgram.elements
             // Howerver, off axis d ray image height is absolutely correct.
             idealHeight = idealH(outputGaussianOff);
             realHeight = realH(outputRealOff);
-            
-            totalOutput.Add(idealHeight["1  d"].ToString());
-            totalOutput.Add(idealHeight["0.7  d"].ToString());
+
+            totalOutput.Add(Math.Abs(idealHeight["1  d"]).ToString());
+            totalOutput.Add(Math.Abs(idealHeight["0.7  d"]).ToString());
 
 
 
@@ -172,30 +178,29 @@ namespace optProgram.elements
 
 
             // Output Image Height, Tangential Coma and Distortion Data(Transversal)------complete
-            totalOutput.Add("0");
-            totalOutput.Add("0");
-            totalOutput.Add("0");
-
-            totalOutput.Add(realHeight["0.7  0  F"].ToString());
-            totalOutput.Add(realHeight["1  0  F"].ToString());
-            totalOutput.Add(realHeight["0.7  0  d"].ToString());
-            totalOutput.Add(realHeight["1  0  d"].ToString());
-            totalOutput.Add(realHeight["0.7  0  C"].ToString());
-            totalOutput.Add(realHeight["1  0  C"].ToString());
-            Distortion(idealHeight, realHeight);
-            lateralChrab(realHeight);
-            tanComa(realHeight);
-
-
             astigBeam output = new astigBeam(0, 0, 0, 0, 0);
             output = ImageDiffRefraction(incident, new Queue<double>(RadiusOff), new Queue<double>(RIndexOff["d"]), new Queue<double>(IntervalOff));
             double ltp = output.t * Math.Cos(output.u) + output.x;
             double lsp = output.s * Math.Cos(output.u) + output.x;
-            double xsp = lsp - outputGaussianOn["d"].l;
+            double xsp = lsp;
             double xtp = ltp - outputGaussianOn["d"].l;
             double deltaXp = xtp - xsp;
             double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
-            MessageBox.Show("xsp = "+xsp.ToString()+"\nxtp = "+xtp.ToString()+"\nΔxp = "+deltaXp.ToString()+"or"+deltaXpsub.ToString());
+            //MessageBox.Show("xsp = " + xsp.ToString() + "\nxtp = " + xtp.ToString() + "\nΔxp = " + deltaXp.ToString() + "or" + deltaXpsub.ToString());
+
+            totalOutput.Add(xsp.ToString());
+            totalOutput.Add(xtp.ToString());
+            totalOutput.Add(deltaXp.ToString());
+            totalOutput.Add(Math.Abs(realHeight["0.7  0  F"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["1  0  F"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["0.7  0  d"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["1  0  d"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["0.7  0  C"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["1  0  C"]).ToString());
+            Distortion(idealHeight, realHeight);
+            lateralChrab(realHeight);
+            tanComa(realHeight);
+
             Form form2 = new Form2(totalOutput);
             form2.ShowDialog();
         }
@@ -541,14 +546,14 @@ namespace optProgram.elements
             Queue<double> RefractiveIndex, Queue<double> Interval)
         {
 
-            double s1p, t1p, s2, t2, PA1,X1,PA2, X2, D1;
+            double s1p, t1p, s2, t2, PA1, X1, PA2, X2, D1;
             double incidentAngle, exitAngle;
             double radius = Radius.Dequeue();
-            
+
             double n = RefractiveIndex.Dequeue();
             double np = RefractiveIndex.Peek();
 
-           
+
             incidentAngle = Math.Asin((incidentBeam1.l - radius) * Math.Sin(incidentBeam1.u) / radius);
             exitAngle = Math.Asin(n * Math.Sin(incidentAngle) / np);
 
@@ -572,8 +577,8 @@ namespace optProgram.elements
 
             PA1 = incidentBeam1.l * Math.Sin(incidentBeam1.u) / Math.Cos(0.5 * (incidentAngle - incidentBeam1.u));
             X1 = PA1 * PA1 / (2 * radius);
-            PA2 = l2 * Math.Sin(u2) / Math.Cos(0.5*(Inci2 - u2));
-            X2 = PA2 * PA2 /( 2 * radius2);
+            PA2 = l2 * Math.Sin(u2) / Math.Cos(0.5 * (Inci2 - u2));
+            X2 = PA2 * PA2 / (2 * radius2);
 
             D1 = (Interval.Dequeue() - X1 + X2) / Math.Cos(u1p);
             t2 = t1p - D1;
