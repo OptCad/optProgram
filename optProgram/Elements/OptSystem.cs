@@ -178,26 +178,21 @@ namespace optProgram.elements
             else
             {
 
-                /*double PA, x, r, u;
+                double PA, x, r, u;
                 r = RadiusOff.Peek();
-                u = Math.Atan(obj.pupilDiameter / 2 / obj.objDistance);
-                double incidentAngle = Math.Asin((obj.objDistance - r) * Math.Sin(u) / r);
+                u = Math.Atan(obj.objHeight/ obj.objDistance);
+                /*double incidentAngle = Math.Asin((obj.objDistance - r) * Math.Sin(u) / r);
                 PA = (obj.objDistance * Math.Sin(u)) / Math.Cos(0.5 * (incidentAngle - u));
                 x = 0.5 * PA * PA / r;
                 incident = new astigBeam(obj.objDistance, u,
                       (obj.objDistance - x) / Math.Cos(u),
                       (obj.objDistance - x) / Math.Cos(u),
                       x);*/
-                double PA, x, r, u;
-                r = RadiusOff.Peek();
-                u = Math.Atan(obj.objHeight / obj.objDistance);
-                double incidentAngle = Math.Asin((obj.objDistance - r) * Math.Sin(u) / r);
-                PA = (obj.objDistance * Math.Sin(u)) / Math.Cos(0.5 * (incidentAngle - u));
-                x = 0.5 * PA * PA / r;
-                incident = new astigBeam(obj.objDistance, u,
-                      Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
-                      Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
-                      0);
+                
+                 incident = new astigBeam(0, u,
+                       -Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
+                       -Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
+                       0);
             }
 
             astigBeam output = new astigBeam(0, 0, 0, 0, 0);
@@ -236,8 +231,10 @@ namespace optProgram.elements
             relativeD7 = absoluteD7 / y0["0.7  d"] * 100;
             if (!isInfinite)
             {
-                absoluteD1 = -absoluteD1;
-                absoluteD7 = -absoluteD7;
+                absoluteD1 = yp["1  0  d"] + y0["1  d"];
+                relativeD1 = -absoluteD1 / y0["1  d"] * 100;
+                absoluteD7 = yp["0.7  0  d"] + y0["0.7  d"];
+                relativeD7 = -absoluteD7 / y0["0.7  d"] * 100;
             }
             totalOutput.Add(relativeD7.ToString() + "%");
             totalOutput.Add(relativeD1.ToString() + "%");
@@ -463,16 +460,10 @@ namespace optProgram.elements
         private void lateralChrab(Dictionary<string, double> yp)
         {
             double LCA_7, LCA_1;
-            if (isInfinite)
-            {
-                LCA_7 = yp["0.7  0  F"] - yp["0.7  0  C"];
-                LCA_1 = yp["1  0  F"] - yp["1  0  C"];
-            }
-            else
-            {
-                LCA_7 = -yp["0.7  0  F"] + yp["0.7  0  C"];
-                LCA_1 = -yp["1  0  F"] + yp["1  0  C"];
-            }
+            LCA_7 = yp["0.7  0  F"] - yp["0.7  0  C"];
+            LCA_1 = yp["1  0  F"] - yp["1  0  C"];
+
+
             totalOutput.Add(LCA_7.ToString());
             totalOutput.Add(LCA_1.ToString());
 
@@ -481,10 +472,10 @@ namespace optProgram.elements
         private void tanComa(Dictionary<string, double> yp)
         {
             double tc77, tc71, tc17, tc11;
-            tc77 = (0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"]);
-            tc71 = (0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"]);
-            tc17 = (0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"]);
-            tc11 = (0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"]);
+            tc77 = Math.Abs(0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"]);
+            tc71 = Math.Abs(0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"]);
+            tc17 = Math.Abs(0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"]);
+            tc11 = Math.Abs(0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"]);
             totalOutput.Add(tc77.ToString());
             totalOutput.Add(tc71.ToString());
             totalOutput.Add(tc17.ToString());
