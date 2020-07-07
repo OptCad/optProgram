@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using NPOI.SS.Formula.Functions;
 
 namespace optProgram.elements
 {
@@ -68,7 +69,7 @@ namespace optProgram.elements
             RIndexOff.Add("F", new Queue<double>(RefractiveIndexOnF));
             RIndexOff.Add("C", new Queue<double>(RefractiveIndexOnC));
 
-            
+
         }
 
         public void calAll()
@@ -182,14 +183,14 @@ namespace optProgram.elements
             output = ImageDiffRefraction(incident, new Queue<double>(RadiusOff), new Queue<double>(RIndexOff["d"]), new Queue<double>(IntervalOff));
             double ltp = output.t * Math.Cos(output.u) + output.x;
             double lsp = output.s * Math.Cos(output.u) + output.x;
-            double xsp = lsp;
+            double xsp = lsp - outputGaussianOn["d"].l;
             double xtp = ltp - outputGaussianOn["d"].l;
             double deltaXp = xtp - xsp;
             double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
             //MessageBox.Show("xsp = " + xsp.ToString() + "\nxtp = " + xtp.ToString() + "\nΔxp = " + deltaXp.ToString() + "or" + deltaXpsub.ToString());
 
-            totalOutput.Add(xsp.ToString());
             totalOutput.Add(xtp.ToString());
+            totalOutput.Add(xsp.ToString());
             totalOutput.Add(deltaXp.ToString());
             totalOutput.Add(Math.Abs(realHeight["0.7  0  F"]).ToString());
             totalOutput.Add(Math.Abs(realHeight["1  0  F"]).ToString());
@@ -212,6 +213,11 @@ namespace optProgram.elements
             relativeD1 = absoluteD1 / y0["1  d"] * 100;
             absoluteD7 = yp["0.7  0  d"] - y0["0.7  d"];
             relativeD7 = absoluteD7 / y0["0.7  d"] * 100;
+            if(!isInfinite)
+            {
+                absoluteD1 = -absoluteD1;
+                absoluteD7 = -absoluteD7;
+            }
             totalOutput.Add(relativeD7.ToString() + "%");
             totalOutput.Add(relativeD1.ToString() + "%");
             totalOutput.Add(absoluteD7.ToString());
@@ -436,8 +442,16 @@ namespace optProgram.elements
         private void lateralChrab(Dictionary<string, double> yp)
         {
             double LCA_7, LCA_1;
-            LCA_7 = yp["0.7  0  F"] - yp["0.7  0  C"];
-            LCA_1 = yp["1  0  F"] - yp["1  0  C"];
+            if (isInfinite)
+            {
+                LCA_7 = yp["0.7  0  F"] - yp["0.7  0  C"];
+                LCA_1 = yp["1  0  F"] - yp["1  0  C"];
+            }
+            else
+            {
+                LCA_7 = -yp["0.7  0  F"] + yp["0.7  0  C"];
+                LCA_1 = -yp["1  0  F"] + yp["1  0  C"];
+            }
             totalOutput.Add(LCA_7.ToString());
             totalOutput.Add(LCA_1.ToString());
 
@@ -543,9 +557,8 @@ namespace optProgram.elements
 
 
         private astigBeam ImageDiffRefraction(astigBeam incidentBeam1, Queue<double> Radius,
-            Queue<double> RefractiveIndex, Queue<double> Interval)
+             Queue<double> RefractiveIndex, Queue<double> Interval)
         {
-
             double s1p, t1p, s2, t2, PA1, X1, PA2, X2, D1;
             double incidentAngle, exitAngle;
             double radius = Radius.Dequeue();
@@ -553,39 +566,29 @@ namespace optProgram.elements
             double n = RefractiveIndex.Dequeue();
             double np = RefractiveIndex.Peek();
 
-
             incidentAngle = Math.Asin((incidentBeam1.l - radius) * Math.Sin(incidentBeam1.u) / radius);
             exitAngle = Math.Asin(n * Math.Sin(incidentAngle) / np);
-
             //IncidentAngleQ.Enqueue(incidentAngle);
             //ExitAngleQ.Enqueue(exitAngle);
-
             s1p = np / ((np * Math.Cos(exitAngle) - n * Math.Cos(incidentAngle)) / radius + n / incidentBeam1.s);
             t1p = np * Math.Cos(exitAngle) * Math.Cos(exitAngle) / ((np * Math.Cos(exitAngle) -
                 n * Math.Cos(incidentAngle)) / radius + n * Math.Cos(incidentAngle) * Math.Cos(incidentAngle) / incidentBeam1.t);
             double u1p = incidentAngle + incidentBeam1.u - exitAngle;
             double l1p = radius + radius * Math.Sin(exitAngle) / Math.Sin(u1p);
-
-
             astigBeam exitBeam1 = new astigBeam(l1p, u1p, s1p, t1p, incidentBeam1.x);
             if (Radius.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
-
             double radius2 = Radius.Peek();
             double u2 = u1p;
             double l2 = l1p - Interval.Peek();
             double Inci2 = Math.Asin((l2 - radius2) * Math.Sin(u2) / radius2);
-
             PA1 = incidentBeam1.l * Math.Sin(incidentBeam1.u) / Math.Cos(0.5 * (incidentAngle - incidentBeam1.u));
             X1 = PA1 * PA1 / (2 * radius);
             PA2 = l2 * Math.Sin(u2) / Math.Cos(0.5 * (Inci2 - u2));
             X2 = PA2 * PA2 / (2 * radius2);
-
             D1 = (Interval.Dequeue() - X1 + X2) / Math.Cos(u1p);
             t2 = t1p - D1;
             s2 = s1p - D1;
-
             astigBeam incidentBeam2 = new astigBeam(l2, u2, s2, t2, X2);
-
             return ImageDiffRefraction(incidentBeam2, Radius, RefractiveIndex, Interval);
         }
     }
