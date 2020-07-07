@@ -172,9 +172,17 @@ namespace optProgram.elements
 
 
             // Output Image Height, Tangential Coma and Distortion Data(Transversal)------complete
-            totalOutput.Add("0");
-            totalOutput.Add("0");
-            totalOutput.Add("0");
+            astigBeam output = new astigBeam(0, 0, 0, 0, 0);
+            output = ImageDiffRefraction(incident, new Queue<double>(RadiusOff), new Queue<double>(RIndexOff["d"]), new Queue<double>(IntervalOff));
+            double ltp = output.t * Math.Cos(output.u) + output.x;
+            double lsp = output.s * Math.Cos(output.u) + output.x;
+            double xsp = lsp - outputGaussianOn["d"].l;
+            double xtp = ltp - outputGaussianOn["d"].l;
+            double deltaXp = xtp - xsp;
+            double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
+            totalOutput.Add(xsp.ToString());
+            totalOutput.Add(xtp.ToString());
+            totalOutput.Add(deltaXpsub.ToString());
 
             totalOutput.Add(realHeight["0.7  0  F"].ToString());
             totalOutput.Add(realHeight["1  0  F"].ToString());
@@ -187,15 +195,8 @@ namespace optProgram.elements
             tanComa(realHeight);
 
 
-            astigBeam output = new astigBeam(0, 0, 0, 0, 0);
-            output = ImageDiffRefraction(incident, new Queue<double>(RadiusOff), new Queue<double>(RIndexOff["d"]), new Queue<double>(IntervalOff));
-            double ltp = output.t * Math.Cos(output.u) + output.x;
-            double lsp = output.s * Math.Cos(output.u) + output.x;
-            double xsp = lsp - outputGaussianOn["d"].l;
-            double xtp = ltp - outputGaussianOn["d"].l;
-            double deltaXp = xtp - xsp;
-            double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
-            MessageBox.Show("xsp = "+xsp.ToString()+"\nxtp = "+xtp.ToString()+"\nΔxp = "+deltaXp.ToString()+"or"+deltaXpsub.ToString());
+           
+            //MessageBox.Show("xsp = "+xsp.ToString()+"\nxtp = "+xtp.ToString()+"\nΔxp = "+deltaXp.ToString()+"or"+deltaXpsub.ToString());
             Form form2 = new Form2(totalOutput);
             form2.ShowDialog();
         }
