@@ -84,7 +84,7 @@ namespace optProgram.elements
             if (isInfinite)
                 incident = new astigBeam(0, obj.fieldAngle, Math.Pow(-10, 15), Math.Pow(-10, 15), 0);
             else
-                incident = new astigBeam(obj.objDistance, Math.Atan(obj.objHeight / obj.objDistance),
+                incident = new astigBeam(0, Math.Atan(obj.objHeight / obj.objDistance),
                     Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
                     Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
                     0);
@@ -132,8 +132,10 @@ namespace optProgram.elements
                 }
             }
 
-            foreach (KeyValuePair<string, Beam> kvp in outputGaussianOn)
-                totalOutput.Add(kvp.Value.l.ToString());
+            
+                totalOutput.Add(outputGaussianOn["d"].l.ToString());
+            totalOutput.Add(outputGaussianOn["C"].l.ToString());
+            totalOutput.Add(outputGaussianOn["F"].l.ToString());
             totalOutput.Add(outputRealOn["1  d"].l.ToString());
             totalOutput.Add(outputRealOn["0.7  d"].l.ToString());
             totalOutput.Add(outputRealOn["1  C"].l.ToString());
@@ -439,10 +441,10 @@ namespace optProgram.elements
         private void tanComa(Dictionary<string, double> yp)
         {
             double tc77, tc71, tc17, tc11;
-            tc77 = 1000*(0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"]);
-            tc71 = 1000*(0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"]);
-            tc17 = 1000*(0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"]);
-            tc11 = 1000*(0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"]);
+            tc77 = (0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"]);
+            tc71 = (0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"]);
+            tc17 = (0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"]);
+            tc11 = (0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"]);
             totalOutput.Add(tc77.ToString());
             totalOutput.Add(tc71.ToString());
             totalOutput.Add(tc17.ToString());
