@@ -91,9 +91,9 @@ namespace optProgram.elements
             if (isInfinite)
                 incident = new astigBeam(0, obj.fieldAngle, Math.Pow(-10, 15), Math.Pow(-10, 15), 0);
             else
-                incident = new astigBeam(0, Math.Atan(obj.objHeight / obj.objDistance),
-                    Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
-                    Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
+                incident = new astigBeam(obj.objDistance, Math.Atan(obj.objHeight / obj.objDistance),
+                    -Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
+                    -Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
                     0);
 
             RadiusOff = new Queue<double>(RadiusOn);
@@ -213,7 +213,7 @@ namespace optProgram.elements
             relativeD1 = absoluteD1 / y0["1  d"] * 100;
             absoluteD7 = yp["0.7  0  d"] - y0["0.7  d"];
             relativeD7 = absoluteD7 / y0["0.7  d"] * 100;
-            if(!isInfinite)
+            if (!isInfinite)
             {
                 absoluteD1 = -absoluteD1;
                 absoluteD7 = -absoluteD7;
@@ -337,7 +337,10 @@ namespace optProgram.elements
                 if (isInfinite == true)
                     beam.Add(K1.ToString(), new Beam(0, Math.Sin(K1 * obj.fieldAngle)));
                 else
+                {
+                    double tmp = 0;
                     beam.Add(K1.ToString(), new Beam(0, Math.Sin(Math.Atan(K1 * obj.objHeight / obj.objDistance))));
+                }
 
             }
 
@@ -567,7 +570,7 @@ namespace optProgram.elements
             double np = RefractiveIndex.Peek();
 
             incidentAngle = Math.Asin((incidentBeam1.l - radius) * Math.Sin(incidentBeam1.u) / radius);
-            exitAngle = Math.Asin(n * Math.Sin(incidentAngle) / np);
+            exitAngle = Math.Asin(n * (incidentBeam1.l - radius) * Math.Sin(incidentBeam1.u) / radius / np);
             //IncidentAngleQ.Enqueue(incidentAngle);
             //ExitAngleQ.Enqueue(exitAngle);
             s1p = np / ((np * Math.Cos(exitAngle) - n * Math.Cos(incidentAngle)) / radius + n / incidentBeam1.s);
