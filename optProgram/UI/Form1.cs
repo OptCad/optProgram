@@ -157,7 +157,16 @@ namespace optProgram.UI
             //Read the data from the table.
             for (int i = 0; i < dGViewExcel.Rows.Count - 1; i++)
             {
-                double r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
+                double r_tmp;
+                try
+                {
+                    r_tmp = double.Parse(dGViewExcel.Rows[i].Cells[0].Value.ToString());
+                }
+                catch
+                {
+                    MessageBox.Show("非法输入！");
+                    return;
+                }
                 double nd_tmp = envRefractiveIndex;
                 double nC_tmp = envRefractiveIndex;
                 double nF_tmp = envRefractiveIndex;

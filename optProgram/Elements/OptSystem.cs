@@ -37,6 +37,7 @@ namespace optProgram.elements
         Dictionary<string, double> idealHeight = new Dictionary<string, double> { };
         Dictionary<string, double> realHeight = new Dictionary<string, double> { };
 
+        bool OK = true;
 
         public OptSystem(Queue<Sphere> systemdata, Obj obj, bool isInfinite)
         {
@@ -122,6 +123,8 @@ namespace optProgram.elements
                 string str = kvp2.Key;
                 str = str.Substring(str.Length - 1, 1);
                 outputRealOn.Add(kvp2.Key, RealRefraction(kvp2.Value, new Queue<double>(RadiusOn), new Queue<double>(RIndexOn[str]), new Queue<double>(IntervalOn)));
+                if (OK == false)
+                    return;
             }
 
             foreach (KeyValuePair<string, Queue<double>> kvp1 in RIndexOff)
@@ -178,18 +181,10 @@ namespace optProgram.elements
             else
             {
 
-                double PA, x, r, u;
-                r = RadiusOff.Peek();
-                u = Math.Atan(obj.objHeight/ obj.objDistance);
-                /*double incidentAngle = Math.Asin((obj.objDistance - r) * Math.Sin(u) / r);
-                PA = (obj.objDistance * Math.Sin(u)) / Math.Cos(0.5 * (incidentAngle - u));
-                x = 0.5 * PA * PA / r;
-                incident = new astigBeam(obj.objDistance, u,
-                      (obj.objDistance - x) / Math.Cos(u),
-                      (obj.objDistance - x) / Math.Cos(u),
-                      x);*/
+                double u;
                 
-                 incident = new astigBeam(0, u,
+                u = Math.Atan(obj.objHeight/ obj.objDistance);
+                incident = new astigBeam(0, u,
                        -Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
                        -Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
                        0);
@@ -202,8 +197,7 @@ namespace optProgram.elements
             double xsp = lsp - outputGaussianOn["d"].l;
             double xtp = ltp - outputGaussianOn["d"].l;
             double deltaXp = xtp - xsp;
-            double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
-            //MessageBox.Show("xsp = " + xsp.ToString() + "\nxtp = " + xtp.ToString() + "\nΔxp = " + deltaXp.ToString() + "or" + deltaXpsub.ToString());
+            
 
             totalOutput.Add(xtp.ToString());
             totalOutput.Add(xsp.ToString());
@@ -290,12 +284,16 @@ namespace optProgram.elements
             if (Math.Abs(sinI) > 1)
             {
                 MessageBox.Show("入射光线超半球！");
+                OK = false;
+                return incidentBeam1;
             }
             incidentAngle = Math.Asin(sinI);
             double sinIp = n * sinI / np;
             if (Math.Abs(sinIp) > 1)
             {
                 MessageBox.Show("发生全反射！");
+                OK = false;
+                return incidentBeam1;
             }
             exitAngle = Math.Asin(sinIp);
 
