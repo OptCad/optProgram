@@ -183,10 +183,10 @@ namespace optProgram.UI
                 Sphere tmp = new Sphere(r_tmp,nd_tmp,nF_tmp,nC_tmp, d_tmp);
                 inputs.Enqueue(tmp);
             }
+
+
             //Calculate.
             OptSystem optSystem = new OptSystem(inputs, obj,infDistance.Checked);
-            //Gaussian Optics
-            //Beam output = optSystem.GaussianRefraction(new Beam(obj.objDistance, obj.apertureAngle), infDistance.Checked);
             optSystem.calAll();
             
         }

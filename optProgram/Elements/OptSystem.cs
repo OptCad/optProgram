@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using NPOI.SS.Formula.Functions;
 
 namespace optProgram.elements
 {
@@ -68,11 +69,17 @@ namespace optProgram.elements
             RIndexOff.Add("F", new Queue<double>(RefractiveIndexOnF));
             RIndexOff.Add("C", new Queue<double>(RefractiveIndexOnC));
 
-            //RIndexOff = new Dictionary<string, Queue<double>>(RIndexOn);
+
         }
 
         public void calAll()
         {
+
+            if (RadiusOn.Count == 0)
+            {
+                MessageBox.Show("请输入有效值！");
+                return;
+            }
             double[] K1 = new double[] { 1, 0.85, 0.7, 0.5, 0.3 };
             double[] K2 = new double[] { 1, 0.85, 0.7, 0.5, 0.3, 0, -1, -0.85, -0.7, -0.5, -0.3 };
 
@@ -81,13 +88,7 @@ namespace optProgram.elements
             Dictionary<string, Beam> incidentBeamRealOn;
             Dictionary<string, Beam> incidentBeamRealOff;
 
-            if (isInfinite)
-                incident = new astigBeam(0, obj.fieldAngle, Math.Pow(-10, 15), Math.Pow(-10, 15), 0);
-            else
-                incident = new astigBeam(0, Math.Atan(obj.objHeight / obj.objDistance),
-                    Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
-                    Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
-                    0);
+
 
             RadiusOff = new Queue<double>(RadiusOn);
             IntervalOff = new Queue<double>(IntervalOn);
@@ -101,7 +102,6 @@ namespace optProgram.elements
 
             incidentBeamGaussianOn = initOnaxialGaussian();
             incidentBeamRealOn = initOnAxialReal(K2);
-
 
             foreach (KeyValuePair<string, Queue<double>> kvp in RIndexOn)
             {
@@ -132,8 +132,8 @@ namespace optProgram.elements
                 }
             }
 
-            
-                totalOutput.Add(outputGaussianOn["d"].l.ToString());
+
+            totalOutput.Add(outputGaussianOn["d"].l.ToString());
             totalOutput.Add(outputGaussianOn["C"].l.ToString());
             totalOutput.Add(outputGaussianOn["F"].l.ToString());
             totalOutput.Add(outputRealOn["1  d"].l.ToString());
@@ -142,7 +142,7 @@ namespace optProgram.elements
             totalOutput.Add(outputRealOn["0.7  C"].l.ToString());
             totalOutput.Add(outputRealOn["1  F"].l.ToString());
             totalOutput.Add(outputRealOn["0.7  F"].l.ToString());
-            totalOutput.Add(basicPoints["lH"].ToString());
+            totalOutput.Add(Math.Abs(basicPoints["lH"]).ToString());
             totalOutput.Add(basicPoints["lp"].ToString());
 
 
@@ -159,9 +159,9 @@ namespace optProgram.elements
             // Howerver, off axis d ray image height is absolutely correct.
             idealHeight = idealH(outputGaussianOff);
             realHeight = realH(outputRealOff);
-            
-            totalOutput.Add(idealHeight["1  d"].ToString());
-            totalOutput.Add(idealHeight["0.7  d"].ToString());
+
+            totalOutput.Add(Math.Abs(idealHeight["1  d"]).ToString());
+            totalOutput.Add(Math.Abs(idealHeight["0.7  d"]).ToString());
 
 
 
@@ -172,6 +172,29 @@ namespace optProgram.elements
 
 
             // Output Image Height, Tangential Coma and Distortion Data(Transversal)------complete
+
+            if (isInfinite)
+                incident = new astigBeam(0, obj.fieldAngle, Math.Pow(-10, 15), Math.Pow(-10, 15), 0);
+            else
+            {
+
+                double PA, x, r, u;
+                r = RadiusOff.Peek();
+                u = Math.Atan(obj.objHeight/ obj.objDistance);
+                /*double incidentAngle = Math.Asin((obj.objDistance - r) * Math.Sin(u) / r);
+                PA = (obj.objDistance * Math.Sin(u)) / Math.Cos(0.5 * (incidentAngle - u));
+                x = 0.5 * PA * PA / r;
+                incident = new astigBeam(obj.objDistance, u,
+                      (obj.objDistance - x) / Math.Cos(u),
+                      (obj.objDistance - x) / Math.Cos(u),
+                      x);*/
+                
+                 incident = new astigBeam(0, u,
+                       -Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
+                       -Math.Sqrt(obj.objHeight * obj.objHeight + obj.objDistance * obj.objDistance),
+                       0);
+            }
+
             astigBeam output = new astigBeam(0, 0, 0, 0, 0);
             output = ImageDiffRefraction(incident, new Queue<double>(RadiusOff), new Queue<double>(RIndexOff["d"]), new Queue<double>(IntervalOff));
             double ltp = output.t * Math.Cos(output.u) + output.x;
@@ -180,23 +203,21 @@ namespace optProgram.elements
             double xtp = ltp - outputGaussianOn["d"].l;
             double deltaXp = xtp - xsp;
             double deltaXpsub = (output.t - output.s) * Math.Cos(output.u);
-            totalOutput.Add(xsp.ToString());
-            totalOutput.Add(xtp.ToString());
-            totalOutput.Add(deltaXpsub.ToString());
+            //MessageBox.Show("xsp = " + xsp.ToString() + "\nxtp = " + xtp.ToString() + "\nΔxp = " + deltaXp.ToString() + "or" + deltaXpsub.ToString());
 
-            totalOutput.Add(realHeight["0.7  0  F"].ToString());
-            totalOutput.Add(realHeight["1  0  F"].ToString());
-            totalOutput.Add(realHeight["0.7  0  d"].ToString());
-            totalOutput.Add(realHeight["1  0  d"].ToString());
-            totalOutput.Add(realHeight["0.7  0  C"].ToString());
-            totalOutput.Add(realHeight["1  0  C"].ToString());
+            totalOutput.Add(xtp.ToString());
+            totalOutput.Add(xsp.ToString());
+            totalOutput.Add(deltaXp.ToString());
+            totalOutput.Add(Math.Abs(realHeight["0.7  0  F"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["1  0  F"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["0.7  0  d"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["1  0  d"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["0.7  0  C"]).ToString());
+            totalOutput.Add(Math.Abs(realHeight["1  0  C"]).ToString());
             Distortion(idealHeight, realHeight);
             lateralChrab(realHeight);
             tanComa(realHeight);
 
-
-           
-            //MessageBox.Show("xsp = "+xsp.ToString()+"\nxtp = "+xtp.ToString()+"\nΔxp = "+deltaXp.ToString()+"or"+deltaXpsub.ToString());
             Form form2 = new Form2(totalOutput);
             form2.ShowDialog();
         }
@@ -208,6 +229,13 @@ namespace optProgram.elements
             relativeD1 = absoluteD1 / y0["1  d"] * 100;
             absoluteD7 = yp["0.7  0  d"] - y0["0.7  d"];
             relativeD7 = absoluteD7 / y0["0.7  d"] * 100;
+            if (!isInfinite)
+            {
+                absoluteD1 = yp["1  0  d"] + y0["1  d"];
+                relativeD1 = -absoluteD1 / y0["1  d"] * 100;
+                absoluteD7 = yp["0.7  0  d"] + y0["0.7  d"];
+                relativeD7 = -absoluteD7 / y0["0.7  d"] * 100;
+            }
             totalOutput.Add(relativeD7.ToString() + "%");
             totalOutput.Add(relativeD1.ToString() + "%");
             totalOutput.Add(absoluteD7.ToString());
@@ -393,7 +421,7 @@ namespace optProgram.elements
                     else
                     {
                         double tanU1;
-                        tanU1 = (K1 * obj.objHeight - K2 * pupilDiameter / 2) / obj.objDistance;
+                        tanU1 = (K1 * obj.objHeight - K2 * pupilDiameter / 2) / -obj.objDistance;
                         beam.Add(K1.ToString() + "  " + K2.ToString(), new Beam(K2 * pupilDiameter / 2 / tanU1,
                             Math.Atan(tanU1)));
                     }
@@ -434,6 +462,8 @@ namespace optProgram.elements
             double LCA_7, LCA_1;
             LCA_7 = yp["0.7  0  F"] - yp["0.7  0  C"];
             LCA_1 = yp["1  0  F"] - yp["1  0  C"];
+
+
             totalOutput.Add(LCA_7.ToString());
             totalOutput.Add(LCA_1.ToString());
 
@@ -442,10 +472,10 @@ namespace optProgram.elements
         private void tanComa(Dictionary<string, double> yp)
         {
             double tc77, tc71, tc17, tc11;
-            tc77 = (0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"]);
-            tc71 = (0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"]);
-            tc17 = (0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"]);
-            tc11 = (0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"]);
+            tc77 = Math.Abs(0.5 * (yp["0.7  0.7  d"] + yp["0.7  -0.7  d"]) - yp["0.7  0  d"]);
+            tc71 = Math.Abs(0.5 * (yp["0.7  1  d"] + yp["0.7  -1  d"]) - yp["0.7  0  d"]);
+            tc17 = Math.Abs(0.5 * (yp["1  0.7  d"] + yp["1  -0.7  d"]) - yp["1  0  d"]);
+            tc11 = Math.Abs(0.5 * (yp["1  1  d"] + yp["1  -1  d"]) - yp["1  0  d"]);
             totalOutput.Add(tc77.ToString());
             totalOutput.Add(tc71.ToString());
             totalOutput.Add(tc17.ToString());
@@ -539,49 +569,37 @@ namespace optProgram.elements
 
 
         private astigBeam ImageDiffRefraction(astigBeam incidentBeam1, Queue<double> Radius,
-            Queue<double> RefractiveIndex, Queue<double> Interval)
+             Queue<double> RefractiveIndex, Queue<double> Interval)
         {
-
-            double s1p, t1p, s2, t2, PA1,X1,PA2, X2, D1;
+            double s1p, t1p, s2, t2, PA2, X2, D1;
             double incidentAngle, exitAngle;
             double radius = Radius.Dequeue();
-            
+
             double n = RefractiveIndex.Dequeue();
             double np = RefractiveIndex.Peek();
-
-           
             incidentAngle = Math.Asin((incidentBeam1.l - radius) * Math.Sin(incidentBeam1.u) / radius);
             exitAngle = Math.Asin(n * Math.Sin(incidentAngle) / np);
-
-            //IncidentAngleQ.Enqueue(incidentAngle);
-            //ExitAngleQ.Enqueue(exitAngle);
-
+            //incidentAngle = (incidentBeam1.l - radius) * incidentBeam1.u / radius;
+            //exitAngle = n * incidentAngle / np;
             s1p = np / ((np * Math.Cos(exitAngle) - n * Math.Cos(incidentAngle)) / radius + n / incidentBeam1.s);
             t1p = np * Math.Cos(exitAngle) * Math.Cos(exitAngle) / ((np * Math.Cos(exitAngle) -
                 n * Math.Cos(incidentAngle)) / radius + n * Math.Cos(incidentAngle) * Math.Cos(incidentAngle) / incidentBeam1.t);
             double u1p = incidentAngle + incidentBeam1.u - exitAngle;
             double l1p = radius + radius * Math.Sin(exitAngle) / Math.Sin(u1p);
-
-
+            //double l1p = radius + radius * exitAngle / u1p;
             astigBeam exitBeam1 = new astigBeam(l1p, u1p, s1p, t1p, incidentBeam1.x);
             if (Radius.Count == 0) return exitBeam1; // the last sphere does not have any sphere behind
-
             double radius2 = Radius.Peek();
             double u2 = u1p;
             double l2 = l1p - Interval.Peek();
             double Inci2 = Math.Asin((l2 - radius2) * Math.Sin(u2) / radius2);
 
-            PA1 = incidentBeam1.l * Math.Sin(incidentBeam1.u) / Math.Cos(0.5 * (incidentAngle - incidentBeam1.u));
-            X1 = PA1 * PA1 / (2 * radius);
-            PA2 = l2 * Math.Sin(u2) / Math.Cos(0.5*(Inci2 - u2));
-            X2 = PA2 * PA2 /( 2 * radius2);
-
-            D1 = (Interval.Dequeue() - X1 + X2) / Math.Cos(u1p);
+            PA2 = l2 * Math.Sin(u2) / Math.Cos(0.5 * (Inci2 - u2));
+            X2 = PA2 * PA2 / (2 * radius2);
+            D1 = (Interval.Dequeue() - incidentBeam1.x + X2) / Math.Cos(u1p);
             t2 = t1p - D1;
             s2 = s1p - D1;
-
             astigBeam incidentBeam2 = new astigBeam(l2, u2, s2, t2, X2);
-
             return ImageDiffRefraction(incidentBeam2, Radius, RefractiveIndex, Interval);
         }
     }
