@@ -126,13 +126,15 @@ namespace optProgram.elements
                 if (OK == false)
                     return;
             }
-
             foreach (KeyValuePair<string, Queue<double>> kvp1 in RIndexOff)
             {
                 foreach (KeyValuePair<string, Beam> kvp2 in incidentBeamRealOff)
                 {
                     outputRealOff.Add(kvp2.Key + "  " + kvp1.Key, RealRefraction(kvp2.Value, new Queue<double>(RadiusOff), new Queue<double>(kvp1.Value), new Queue<double>(IntervalOff)));
+                    if (OK == false)
+                        return;
                 }
+                
             }
 
 
@@ -272,6 +274,8 @@ namespace optProgram.elements
         private Beam RealRefraction(Beam incidentBeam1, Queue<double> Radius,
             Queue<double> RefractiveIndex, Queue<double> Interval) //Calculate exit beam using recursion
         {
+            if (Radius.Count == 0)
+                return incidentBeam1;
 
             double u1p, l1p, u2, l2;
             double incidentAngle, exitAngle;
